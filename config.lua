@@ -39,6 +39,7 @@ prototype_speeds = {
 	"fluid_usage_per_tick", -- Steam engine and turbine steam usage speed.
 	"rotation_speed", -- Turing rate for cars and tanks, as well as turning speed for inserters and radars.
 	"researching_speed", -- Lab Research speed.
+	"structure_animation_speed_coefficient", -- Animation speed coefficient for splitters and lane splitters.
 
 	-------------------
 	-- Player Speeds --
@@ -229,7 +230,6 @@ prototype_power_rates = {
 
 	-- Moving energy around.
 	"charging_energy",
-	"max_transfer",
 
 	-- Limits.
 	"power",
@@ -239,6 +239,16 @@ prototype_power_rates = {
 	-- Misc.
 	"heating_energy",
 	"crane_energy_usage",
+}
+
+prototype_power_rates_recursive = {
+	---------------------
+	-- Energy Transfer --
+	---------------------
+	"drain",
+	"input_flow_limit",
+	"max_transfer",
+	"output_flow_limit",
 }
 
 -- Mostly these properties are here because they relate to smoke which can be generated
@@ -317,6 +327,7 @@ prototype_speeds_recursive = {
 
 
 	--"frequency",
+	--"gravity",
 }
 
 prototype_durations_recursive = {
@@ -387,6 +398,7 @@ prototype_durations_recursive = {
 	"fade_ticks", -- Sound related.
 
 	"jump_delay_ticks", -- Tesla Turret chain property.
+	"warmup",
 }
 
 -- This could be a table, but this makes it more readable below, and the locals are immediately discarded anyway.
@@ -397,7 +409,7 @@ local int64  = { min = -2^63, max = 2^63-1 } -- Unused, but defined in docs, -9,
 local uint8  = { min = 0, max = 2^8-1 } -- 0 <= x <= 255
 local uint16 = { min = 0, max = 2^16-1 } -- 0 <= x <= 65,535
 local uint32 = { min = 0, max = 2^32-1 } -- 0 <= x <= 4,294,967,295
-local uint64 = { min = 0, max = 2^64 } -- 0 <= x <= 18,446,744,073,709,551,616
+local uint64 = { min = 0, max = 2^64-1 } -- 0 <= x <= 18,446,744,073,709,551,615
 
 -- Max clamp values for properties.
 -- Keys can be just the property name, or parent_type.property name. The latter have precedence.
@@ -425,3 +437,9 @@ prototype_values_clamp_low = {
 	duration = 1,
 	duration_in_ticks = 1,
 }
+
+-- Controller speed value needs a different clamping value than other prototypes, so handle them separately.
+for _, controller in ipairs(controller_names) do
+	local new_clamp = string.format("%s.%s", controller, "movement_speed")
+	prototype_values_clamp_low[new_clamp] = prototype_values_clamp_low[new_clamp] or 0.34375
+end
