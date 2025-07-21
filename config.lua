@@ -10,10 +10,10 @@ end
 
 -- This is a list of all the controller types.
 controller_names = {
-	"god-controller",
 	"editor-controller",
-	"spectator-controller",
+	"god-controller",
 	"remote-controller",
+	"spectator-controller",
 }
 
 -- This is a list of type exclusions that will not be adjusted.
@@ -31,13 +31,10 @@ prototype_speeds = {
 	--------------------
 	-- Factory Speeds --
 	--------------------
-	"crafting_speed", -- Base crafting speed for factory buildings.
 	"belt_speed", -- Base belt speeds, also affects the belt animation speed.
+	"crafting_speed", -- Base crafting speed for factory buildings.
 	"mining_speed", -- Mining speed is shared with both mining drills and the player.
 	"pumping_speed", -- Liquid pump speeds.
-	"emissions_per_tick", -- Pollution Production.
-	"fluid_usage_per_tick", -- Steam engine and turbine steam usage speed.
-	"rotation_speed", -- Turing rate for cars and tanks, as well as turning speed for inserters and radars.
 	"researching_speed", -- Lab Research speed.
 	"structure_animation_speed_coefficient", -- Animation speed coefficient for splitters and lane splitters.
 
@@ -46,75 +43,94 @@ prototype_speeds = {
 	-------------------
 	"distance_per_frame", -- Distance over the ground to travel before moving to the next animation frame.
 	"dying_speed", -- How quickly the aliens croak after they reach 0 HP. Perhaps you too.
+	"initial_movement_speed",
+	"movement_speed", -- Player and other mob movement speeds.
 	"running_speed", -- Some mobs use running speed instead of movement speed.
-
 
 	--------------
 	-- Vehicles --
 	--------------
-	"turret_rotation_speed", -- Turret rotation speed for cars, tanks, turrets and artillery.
+	"air-resistance", -- Percent of train speed lost each tick.
 	"braking_force", -- Base braking force for trains.
 	"friction", -- Friction for cars and tanks as a percent of speed each tick.
 	"friction_force", -- Alternate way to define friction.
-	"air-resistance", -- Percent of train speed lost each tick.
-	"torso_rotation_speed", -- Spidertron Torso rotation speed.
 	"max_speed", -- A variable affecting the speed at which trains will stop accelerating, even if other factors would allow them to go faster.
 	"torso_bob_speed", -- Spidertron Torso bob speed.
+	"torso_rotation_speed", -- Spidertron Torso rotation speed.
+	"train_pushed_by_player_max_speed",
+	"turret_rotation_speed", -- Turret rotation speed for cars, tanks, turrets and artillery.
 
 	-------------------
 	-- Combat Speeds --
 	-------------------
+	"attack_speed",
+	"attacking_speed",
+	"cannon_parking_speed",
+	"damage_multiplier_decrease_per_tick",
+	"damage_per_tick",
+	"ending_attack_speed",
 	"folded_speed",
 	"folding_speed",
 	"prepared_speed",
 	"preparing_speed",
-	"cannon_parking_speed",
-	"attack_speed",
-	"ending_attack_speed",
-	"damage_multiplier_decrease_per_tick",
 	"splash_damage_per_tick",
-
+	"turn_speed",
 
 	----------------------
 	-- Pollution Speeds --
 	----------------------
+	"absorptions_per_second",
+	"emissions_per_second",
+	"emissions_per_tick", -- Pollution Production.
 	"pollution_absorption_absolute", -- How much pollution an entity absorbs each tick no matter how much pollution is in that chunk.
-	"pollution_absorption_proportional", -- What percent of the pollution in a chuck the entity will absorb each tick.
 	"pollution_absorption_per_second",
+	"pollution_absorption_proportional", -- What percent of the pollution in a chuck the entity will absorb each tick.
+	--"absorptions_to_join_attack",
 	-- Also see emissions-per-tick under buildings above.
 
 	-----------------
 	-- Rocket Silo --
 	-----------------
 	"door_opening_speed", -- How fast the door opens when the rocket is done building.
-	"light_blinking_speed", -- How fast the silo lights blink.
 	"engine_starting_speed", -- How fast the rocket engine starts.
-	"flying_speed", -- How fast the rocket flies, not sure how it differs from the following.
 	"flying_acceleration", -- How fast the rocket accelerates.
+	"flying_speed", -- How fast the rocket flies, not sure how it differs from the following.
+	"light_blinking_speed", -- How fast the silo lights blink.
 	"rising_speed", -- Speed the rocket rises from the silo when done building.
 
 	--------------------------
 	-- Miscellaneous Speeds --
 	--------------------------
-
+	"ground_patch_fade_in_speed",
+	"healing_per_tick", -- Player out of combat healing rate.
+	"initial_frame_speed",
+	"moving_sound_count_reduction_rate",
 	"opening_speed",
-	"splash_speed",
 	"particle_horizontal_speed",
 	"particle_horizontal_speed_deviation",
-	"frame_main_scanner_movement_speed",
-	"stop_trigger_speed",
-	"sound_scaling_ratio",
 	"sound_minimum_speed",
-	"ground_patch_fade_in_speed",
+	"sound_scaling_ratio",
+	"splash_speed",
+	"stop_trigger_speed",
+	"tree_leaf_distortion_speed_far",
+	"tree_leaf_distortion_speed_near",
+	"tree_shadow_speed",
+	"walking_sound_count_reduction_rate",
+	"wave_speed",
 
 	----------------------
 	-- Space Age Speeds --
 	----------------------
-
-	"arm_speed_base",
 	"arm_angular_speed_cap_base",
-	"production_health_effect",
+	"arm_speed_base",
+	"asteroid_spawning_with_random_orientation_max_speed",
+	"ejected_item_speed",
+	"enraged_speed",
+	"gravity_pull",
+	"investigating_speed",
 	"max_fluid_usage",
+	"patrolling_speed",
+	"production_health_effect",
 
 	-------------------
 	-- Accelerations --
@@ -148,79 +164,86 @@ prototype_speeds = {
 }
 
 prototype_durations = {
-	-- Another timing method for animations.
-	"animation_ticks_per_frame",
-	"effect_animation_period",
-	"effect_animation_period_deviation",
+	-----------------------
+	-- Factory Durations --
+	-----------------------
+	"asteroid_collector_navmesh_refresh_tick_interval",
+	"ejected_item_lifetime",
+	"opened_duration",
+	"robot_opened_duration",
+	"space_platform_dump_cooldown",
+	"spoil_ticks",
+	"timeout_to_close",
 
-	-- Actual Durations
-	"maximum_lifetimie",
-	"life_time",
-	"initial_lifetime",
-	"burnt_patch_lifetime",
-	"min_pursue_time",
+	----------------------
+	-- Combat Durations --
+	----------------------
+	"damage_interval",
 	"distraction_cooldown",
-	--"duration",
-	"fade_in_duration",
-	"fade_out_duration",
-	"fade_in_out_ticks",
-	"fade_away_duration",
-	"smoke_fade_in_duration",
-	"smoke_fade_out_duration",
+	"duration_in_ticks",
+	"early_death_ticks",
+	"enraged_duration",
+	"jump_delay_ticks", -- Tesla Turret chain property.
+	"min_pursue_time",
+	"spawning_cooldown",
 	"ticks_to_keep_aiming_direction",
 	"ticks_to_keep_gun",
 	"ticks_to_stay_in_combat",
-	"time_before_removed",
-	"time_to_live",
-	"opened_duration",
-	"robot_opened_duration",
-	"particle_alpha_blend_duration",
-	"spoil_ticks",
-	"time_to_damage",
-	"effect_duration",
+	"time_before_shading_off",
 	"time_to_capture",
-	"decay_frame_transition_duration",
-	"ground_patch_fade_out_duration",
-
-	-- Cooldowns
-
-	"lifetime_increase_cooldown",
-	"add_fuel_cooldown",
-	"charge_cooldown",
-	"discharge_cooldown",
-	"structure_animation_movement_cooldown",
-	"burning_cooldown",
-	"action_cooldown",
-	"glow_fade_away_duration",
+	"time_to_live",
 	"turn_after_shooting_cooldown",
-
-	--Delays
-
-	"spread_delay",
-	"delay_between_initial_flames",
-	"overlay_start_delay",
-
 	"turret_return_timeout",
-	"timeout_to_close",
 
-	"early_death_ticks",
-	"damage_interval",
-
-	"alert_after_time",
-	"ground_patch_fade_in_delay",
-	"ground_patch_fade_out_start",
-
-
+	----------------------------------------------------
+	-- Explosion / Fire / Particles / Smoke Durations --
+	----------------------------------------------------
+	"action_cooldown",
+	"add_fuel_cooldown",
+	"burning_cooldown",
+	"burnt_patch_lifetime",
+	"delay_between_initial_flames",
+	"fade_away_duration",
+	"fade_in_duration",
+	"fade_out_duration",
+	"glow_fade_away_duration",
+	"initial_lifetime",
+	"life_time",
+	"lifetime_increase_cooldown",
+	"maximum_lifetimie",
+	"particle_alpha_blend_duration",
 	"particle_fade_out_duration",
-
-	--"particle_spawn_interval",
-	--"particle_spawn_timeout",
-
-
-	"secondary_picture_fade_out_start",
+	"particle_spawn_interval",
+	"particle_spawn_timeout",
 	"secondary_picture_fade_out_duration",
+	"secondary_picture_fade_out_start",
+	"smoke_fade_in_duration",
+	"smoke_fade_out_duration",
+	"spread_delay",
+	"spread_duration",
 
-	"duration_in_ticks",
+	-----------------------------
+	-- Miscellaneous Durations --
+	-----------------------------
+	"alert_after_time",
+	"animation_ticks_per_frame",
+	"decay_frame_transition_duration",
+	"effect_animation_period",
+	"effect_animation_period_deviation",
+	"effect_duration",
+	"environment_sounds_transition_fade_in_ticks",
+	"fade_in_out_ticks",
+	"ground_patch_fade_in_delay",
+	"ground_patch_fade_out_duration",
+	"ground_patch_fade_out_start",
+	"overlay_start_delay",
+	"repeat_delay",
+	"structure_animation_movement_cooldown",
+	"time_before_removed",
+	"time_to_damage",
+	"train_inactivity_wait_condition_default",
+	"train_temporary_stop_wait_time",
+	"train_time_wait_condition_default",
 
 	-----------------------
 	-- Special Durations --
@@ -255,34 +278,43 @@ prototype_durations = {
 }
 
 prototype_power_rates = {
-	-- All these have approximately the same meaning.
-	"consumption",
-	"energy_consumption",
-	"idle_energy_usage",
-	"energy_usage",
-	"energy_per_tick",
-	"energy_usage_per_tick",
+	------------------------
+	-- Energy Consumption --
+	------------------------
 	"active_energy_usage",
+	"consumption",
+	"crane_energy_usage",
+	"energy_consumption",
+	"energy_per_tick",
+	"energy_usage",
+	"energy_usage_per_tick",
+	"idle_energy_usage",
 	"lamp_energy_usage",
 	"movement_energy_consumption",
 	"passive_energy_usage",
 
-
-	-- Production rather than consumption.
-	"production",
+	-----------------------
+	-- Energy Production --
+	-----------------------
 	"energy_production",
+	"production",
 
-	-- Moving energy around.
+	---------------------
+	-- Energy Transfer --
+	---------------------
 	"charging_energy",
 
-	-- Limits.
-	"power",
-	"max_power",
+	-------------------
+	-- Energy Limits --
+	-------------------
 	"braking_power",
+	"max_power",
+	"power",
 
-	-- Misc.
+	-------------------
+	-- Miscellaneous --
+	-------------------
 	"heating_energy",
-	"crane_energy_usage",
 }
 
 prototype_power_rates_recursive = {
@@ -300,62 +332,37 @@ prototype_power_rates_recursive = {
 --
 -- Entries with a * indicate tables of values, such as those for emissions.
 prototype_speeds_recursive = {
-	"healing_per_tick", -- Player out of combat healing rate.
-	"damage_per_tick",
+	--------------------------------------
+	-- Animation / Visualization Speeds --
+	--------------------------------------
+	"frame_main_scanner_movement_speed",
 
-
-	"movement_speed", -- Player and other mob movement speeds.
-
-	"speed", -- Many prototypes have a speed for movement speed, operating speed, etc.
-
-	-- The following are mostly related to projectiles, particles and smoke.
-	"starting_speed",
-	--"starting_frame_speed",
-	"starting_vertical_speed",
-	"speed_from_center",
-	"initial_vertical_speed",
-	"initial_frame_speed",
-	"initial_movement_speed",
-	"frame_speed",
+	--------------------
+	-- Factory Speeds --
+	--------------------
 	"emissions_per_minute",
-	"emissions_per_second",
-	"absorptions_per_second",
-
-	"tree_leaf_distortion_speed_far",
-	"tree_leaf_distortion_speed_near",
-	"tree_shadow_speed",
-
-	"asteroid_spawning_with_random_orientation_max_speed",
-	"ejected_item_speed",
-
-	"train_pushed_by_player_max_speed",
-	"walking_sound_count_reduction_rate",
-	"moving_sound_count_reduction_rate",
-
+	"extension_speed", -- Speed at which inserters and agricultural towers extend or contract their hand or crane to reach and place or pick up items.
 	"fluid_usage",
-	"gravity_pull",
+	"fluid_usage_per_tick", -- Steam engine and turbine steam usage speed.
+	"horizontal_turn_rate",
+	"rotation_speed", -- Turing rate for cars and tanks, as well as turning speed for inserters and radars.
+	"turn_rate", -- Speed at which agricultural towers turn.
+	"vertical_turn_rate",
+	--"pollution",
+
+	--------------------------
+	-- Miscellaneous Speeds --
+	--------------------------
+	"frame_speed",
+	"initial_vertical_speed",
 	"lightnings_per_chunk_per_tick",
 	"minimal_change_per_tick",
-
-	"patrolling_speed",
-	"investigating_speed",
-	"attacking_speed",
-	"enraged_speed",
-	"wave_speed",
-
-	--"initial_movement_speed",
-	"turn_speed",
-
-	--"absorptions_to_join_attack",
-	--"pollution",
-	"vertical_turn_rate",
-	"horizontal_turn_rate",
-	"extension_speed", -- Speed at which inserters extend or contract their hand to pick up items on the other side of belts, or to reach closer or further belts in mods that support it. Also Agricultural Towers.
-	"turn_rate",
-
-
-	--"frequency",
+	"speed", -- Many prototypes have a speed for movement speed, operating speed, etc.
+	"speed_from_center",
+	"starting_speed",
+	"starting_vertical_speed",
 	--"gravity",
+	--"starting_frame_speed",
 
 	--------------------
 	-- Special Speeds --
@@ -381,74 +388,68 @@ prototype_speeds_recursive = {
 }
 
 prototype_durations_recursive = {
-
-	"fade_in_ticks",
-	"fade_out_ticks",
-
-	"particle_spawn_interval",
-	"particle_spawn_timeout",
-
-	"ease_in_duration",
-	"ease_out_duration",
-	"duration",
-
-	"spawning_cooldown",
-
+	-----------------------------------------
+	-- Planet / Space Transition Durations --
+	-----------------------------------------
+	"draw_switch_tick",
+	"end_time",
+	"flight_duration",
+	"impostor_start_tick",
+	"intermezzo_max_duration",
+	"intermezzo_min_duration",
 	"platform_to_planet_duration_a",
 	"platform_to_planet_duration_b",
 	"platform_to_planet_hatch_open",
-
-	"impostor_start_tick",
-	"rocket_separation_tick",
 	"rocket_separation_end_tick",
-	"flight_duration",
+	"rocket_separation_tick",
 	"solo_duration",
-
 	"special_action_tick",
-	"draw_switch_tick",
-	"intermezzo_min_duration",
-	"intermezzo_max_duration",
+	"start_time",
 	"timestamp",
 
+	-----------------------
+	-- Factory Durations --
+	-----------------------
 	"busy_timeout_ticks",
+	"charge_cooldown",
+	"discharge_cooldown",
 	"hatch_opening_ticks",
-	"end_time",
-	"start_time",
 
-	"space_platform_dump_cooldown",
-	"asteroid_collector_navmesh_refresh_tick_interval",
-
-	"train_temporary_stop_wait_time",
-	"train_time_wait_condition_default",
-	"train_inactivity_wait_condition_default",
-
-	"ejected_item_lifetime",
-	"music_transition_fade_out_ticks",
-	"music_transition_pause_ticks",
-	"music_transition_fade_in_ticks",
-	"environment_sounds_transition_fade_in_ticks",
-
-	"cooldown",
-	"delay",
-	"time_before_shading_off",
-	"spread_duration",
-	"repeat_delay",
-
-	"slow_seconds",
+	----------------------
+	-- Combat Durations --
+	----------------------
 	"demolisher_cloud_duration",
 	"demolisher_expanding_cloud_interval",
-	--"fissure_explosion_delay_ticks",
-	"fissure_explosion_particles_delay_ticks",
-	"fissure_explosion_damage_delay_ticks",
 	"fissure_eruption_ticks",
-	"enraged_duration",
-
-	--"distance_cooldown",
-
-	"fade_ticks", -- Sound related.
-
-	"jump_delay_ticks", -- Tesla Turret chain property.
+	"fissure_explosion_damage_delay_ticks",
+	"fissure_explosion_particles_delay_ticks",
+	"slow_seconds",
 	"warmup",
+	--"fissure_explosion_delay_ticks",
+
+	---------------------
+	-- Sound Durations --
+	---------------------
+	"fade_in_ticks",
+	"fade_out_ticks",
+	"fade_ticks", -- Sound related.
+	"music_transition_fade_in_ticks",
+	"music_transition_fade_out_ticks",
+	"music_transition_pause_ticks",
+
+	-------------------------
+	-- Animation Durations --
+	-------------------------
+	"ease_in_duration",
+	"ease_out_duration",
+
+	-----------------------------
+	-- Miscellaneous Durations --
+	-----------------------------
+	"cooldown",
+	"delay",
+	"duration",
+	--"distance_cooldown",
 
 	-----------------------
 	-- Special Durations --
@@ -721,17 +722,17 @@ prototype_values_default_recursive = {
 -- Max clamp values for properties.
 -- Keys can be just the property_name, root_type.property_name, or object.property_name. The latter have precedence.
 prototype_values_clamp_high = {
-	time_to_live = uint32.max,
-	["fire.fade_out_duration"] = uint32.max, -- Shared name with different cap, so defined by type.
-	["explosion.fade_out_duration"] = uint8.max,
-	damage_interval = uint32.max,
-	time_before_removed = uint32.max,
 	["artillery-projectile.ease_out_duration"] = uint8.max,
+	["explosion.fade_out_duration"] = uint8.max,
+	["fire.fade_out_duration"] = uint32.max, -- Shared name with different cap, so defined by type.
 	["projectile.ease_out_duration"] = uint8.max,
+	damage_interval = uint32.max,
 	duration_in_ticks = uint32.max,
+	flicker_interval = uint8.max,
 	life_time = uint16.max,
 	spoil_ticks = uint32.max,
-	flicker_interval = uint8.max,
+	time_before_removed = uint32.max,
+	time_to_live = uint32.max,
 
 	-------------------------
 	-- Special High Clamps --
