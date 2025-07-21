@@ -39,12 +39,6 @@ data:extend({
   },
   {
     type = "bool-setting",
-    name = "gtts-Adjust-HandCraftingSpeed",
-    setting_type = "runtime-global",
-    default_value = false,
-  },
-  {
-    type = "bool-setting",
     name = "gtts-Adjust-Pollution",
     setting_type = "runtime-global",
     default_value = false,
