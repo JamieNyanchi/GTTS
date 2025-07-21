@@ -1,21 +1,5 @@
 require "config"
 
-local function updatePlayerSettings()
-    if settings.global["gtts-Adjust-HandCraftingSpeed"].value == true then
-        for _, player in pairs(game.players) do
-            if player.character then
-                player.character.character_crafting_speed_modifier = gtts_time_scale - 1
-            end
-        end
-    else
-        for _, player in pairs(game.players) do
-            if player.character then
-                player.character.character_crafting_speed_modifier = 0
-            end
-        end
-    end
-end
-
 --This turns an array of keys below the global "game" object into
 --a table reference and a key in that table as a tuple.
 --
@@ -107,7 +91,6 @@ if settings.startup["gtts-z-No-Runtime-Adjustments"].value == false then
                 if ((not storage["previous-speed"]) or (not (storage["previous-speed"] == gtts_time_scale_inverse)) and game.tick > 1) then
                     if (not storage["previous-scale"]) or (not (storage["previous-scale"] == gtts_time_scale)) then
                         updateMapSettings()
-                        updatePlayerSettings()
                         storage["previous-scale"] = gtts_time_scale
                     end
 
@@ -128,12 +111,8 @@ if settings.startup["gtts-z-No-Runtime-Adjustments"].value == false then
                 storage["previous-speed"] = 1.0
             end
             updateMapSettings()
-            updatePlayerSettings()
         end
     )
 
-    script.on_event(defines.events.on_player_created, updatePlayerSettings)
-    script.on_event(defines.events.on_player_joined_game, updatePlayerSettings)
-    script.on_event(defines.events.on_player_respawned, updatePlayerSettings)
     script.on_event(defines.events.on_surface_created, updateSurfaces)
 end

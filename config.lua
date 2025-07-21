@@ -467,6 +467,233 @@ local uint16 = { min = 0, max = 2^16-1 } -- 0 <= x <= 65,535
 local uint32 = { min = 0, max = 2^32-1 } -- 0 <= x <= 4,294,967,295
 local uint64 = { min = 0, max = 2^64-1 } -- 0 <= x <= 18,446,744,073,709,551,615
 
+-- List of default values for optional properties related to speed and duration.
+-- All of these values are sourced from the API documentation.
+prototype_values_default = {
+	["artillery-flare"] = {
+		["early_death_ticks"] = 180,
+		["initial_frame_speed"] = 1,
+	},
+	["artillery-turret"] = {
+		["cannon_parking_speed"] = 1,
+	},
+	["artillery-wagon"] = {
+		["cannon_parking_speed"] = 1,
+	},
+	["asteroid-collector"] = {
+		["arm_angular_speed_cap_base"] = 0.1,
+		["arm_speed_base"] = 0.1,
+	},
+	["car"] = {
+		["turret_return_timeout"] = 60,
+		["turret_rotation_speed"] = 0.01,
+	},
+	["capture-robot"] = {
+		["capture_speed"] = 1,
+	},
+	["character"] = {
+		["crafting_speed"] = 1,
+		["flying_bob_speed"] = 1,
+		["respawn_time"] = 10,
+	},
+	["corpse"] = {
+		["dying_speed"] = 1,
+		["splash_speed"] = 1,
+		["time_before_removed"] = 60 * 120,
+		["time_before_shading_off"] = 60 * 15,
+	},
+	["fire"] = {
+		["add_fuel_cooldown"] = 10,
+		["burnt_patch_lifetime"] = 1800,
+		["delay_between_initial_flames"] = 10,
+		["fade_in_duration"] = 30,
+		["fade_out_duration"] = 30,
+		["initial_lifetime"] = 300,
+		["lifetime_increase_cooldown"] = 10,
+		["maximum_lifetime"] = uint32.max,
+		["secondary_picture_fade_out_duration"] = 30,
+		["smoke_fade_in_duration"] = 30,
+		["smoke_fade_out_duration"] = 30,
+	},
+	["lab"] = {
+		["researching_speed"] = 1,
+	},
+	["land-mine"] = {
+		["timeout"] = 120,
+		["trigger_interval"] = 10,
+	},
+	["lane-splitter"] = {
+		["animation_speed_coefficient"] = 1,
+		["structure_animation_movement_cooldown"] = 10,
+		["structure_animation_speed_coefficient"] = 1,
+	},
+	["linked-belt"] = {
+		["animation_speed_coefficient"] = 1,
+	},
+	["loader"] = {
+		["animation_speed_coefficient"] = 1,
+	},
+	["loader-1x1"] = {
+		["animation_speed_coefficient"] = 1,
+	},
+	["optimized-particle"] = {
+		["vertical_acceleration"] = -0.004,
+	},
+	["projectile"] = {
+		["turn_speed"] = 1,
+	},
+	["pump"] = {
+		["fluid_wagon_connector_speed"] = 1 / 64.0,
+	},
+	["radar"] = {
+		["rotation_speed"] = 0.01,
+	},
+	["roboport"] = {
+		["robot_vertical_acceleration"] = 0.01,
+	},
+	["roboport-equipment"] = {
+		["robot_vertical_acceleration"] = 0.01,
+	},
+	["rocket-silo"] = {
+		["launch_wait_time"] = 120,
+		["rocket_rising_delay"] = 30,
+	},
+	["segmented-unit"] = {
+		["ticks_per_scan"] = 120,
+		["roar_probability"] = 1.0 / (6.0 * 60.0),
+	},
+	["smoke-with-trigger"] = {
+		["cyclic"] = false,
+		["movement_slow_down_factor"] = 0.995,
+	},
+	["speech-bubble"] = {
+		["fade_in_out_ticks"] = 60,
+	},
+	["spider-unit"] = {
+		["min_pursue_time"] = 600,
+		["torso_bob_speed"] = 1,
+		["torso_rotation_speed"] = 1,
+	},
+	["spider-vehicle"] = {
+		["torso_bob_speed"] = 1,
+		["torso_rotation_speed"] = 1,
+	},
+	["splitter"] = {
+		["animation_speed_coefficient"] = 1,
+		["structure_animation_movement_cooldown"] = 10,
+		["structure_animation_speed_coefficient"] = 1,
+	},
+	["sticker"] = {
+		["damage_interval"] = 1,
+		["fire_spread_cooldown"] = 30,
+	},
+	["stream"] = {
+		["particle_fade_out_duration"] = uint16.max,
+	},
+	["transport-belt"] = {
+		["animation_speed_coefficient"] = 1,
+	},
+	["tree"] = {
+		["healing_per_tick"] = 0.001666,
+	},
+	["trivial-smoke"] = {
+		["cyclic"] = false,
+		["movement_slow_down_factor"] = 0.995,
+	},
+	["turret"] = {
+		["attacking_speed"] = 1,
+		["default_speed"] = 1,
+	},
+	["ammo-turret"] = {
+		["attacking_speed"] = 1,
+		["default_speed"] = 1,
+	},
+	["electric-turret"] = {
+		["attacking_speed"] = 1,
+		["default_speed"] = 1,
+	},
+	["fluid-turret"] = {
+		["attacking_speed"] = 1,
+		["default_speed"] = 1,
+	},
+	["underground-belt"] = {
+		["animation_speed_coefficient"] = 1,
+	},
+	["unit"] = {
+		["min_pursue_time"] = 600,
+		["rotation_speed"] = 0.025,
+	},
+}
+
+-- List of default values for optional properties that are nested in deeper layers of the prototype tree.
+-- All of these values are sourced from the API documentation.
+prototype_values_default_recursive = {
+	["activity_to_speed_modifiers"] = {
+		["multiplier"] = 1,
+	},
+	["activity_to_volume_modifiers"] = {
+		["multiplier"] = 1,
+	},
+	["animations"] = {
+		properties = {
+			["smoke_cycles_per_tick"] = 1,
+		},
+		restrictions = 'object["idle_with_gun"]',
+	},
+	["arm"] = {
+		["turn_rate"] = 0.01,
+		["extension_speed"] = 0.05,
+	},
+	["capsule_action"] = {
+		properties = {
+			["timeout"] = 3600,
+		},
+		restrictions = 'object["type"] == "destroy-cliffs"',
+	},
+	["grappler"] = {
+		["vertical_turn_rate"] = 0.01,
+		["horizontal_turn_rate"] = 0.01,
+		["extension_speed"] = 0.01,
+	},
+	["hatch_definitions"] = {
+		["busy_timeout_ticks"] = 120,
+		["hatch_opening_ticks"] = 80,
+	},
+	["light_flicker"] = {
+		["border_fix_speed"] = 0.02,
+	},
+	["perceived_performance"] = {
+		["performance_to_activity_rate"] = 1,
+	},
+	["shell_particle"] = {
+		["speed"] = 0.1,
+	},
+	["smoke"] = {
+		properties = {
+			["vertical_speed_slowdown"] = 0.965,
+		},
+		restrictions = 'object["frequency"]',
+	},
+	["smoke_in_air"] = {
+		properties = {
+			["vertical_speed_slowdown"] = 0.965,
+		},
+		restrictions = 'object["frequency"]',
+	},
+	["smoke_sources"] = {
+		properties = {
+			["vertical_speed_slowdown"] = 0.965,
+		},
+		restrictions = 'object["frequency"]',
+	},
+	["space_dust_background"] = {
+		["animation_speed"] = 1,
+	},
+	["space_dust_foreground"] = {
+		["animation_speed"] = 1,
+	},
+}
+
 -- Max clamp values for properties.
 -- Keys can be just the property_name, root_type.property_name, or object.property_name. The latter have precedence.
 prototype_values_clamp_high = {

@@ -269,6 +269,68 @@ local function adjust_animation(animation)
 end
 
 
+-- Sets the given list of default property values to the given object, if the restrictions for those defaults are satisfied
+---@param object_name string The name of the object to set defaults for
+---@param object table The object itself
+---@param root_type string The root type of the object to set defaults for
+---@param root_object table The root object itself
+---@param path string The path to the object to set defaults for
+---@param properties table? The list of default property values to apply
+---@param restrictions string? The list of restrictions to check
+---@param i integer? The index of the entry if the entry is part of an array
+---@return nil -- No return
+local function apply_defaults(object_name, object, root_type, root_object, path, properties, restrictions, i)
+	-- Return immediately if there are no default values to set, the object isn't a table, or the restrictions are not met
+	if not properties or type(object) ~= "table" or not check_restrictions(object_name, object, root_type, root_object, path, restrictions) then
+		return
+	end
+
+	-- Ensure all optional properties are set
+	for k, v in pairs(properties) do
+		-- If this is a table of default property values, set the default values in this table
+		if type(v) == "table" and v.properties then
+			if check_restrictions(object_name, object, root_type, root_object, path, v.restrictions) then
+				for sub_k, sub_v in pairs(v.properties) do
+					if object[sub_k] == nil then
+						object[sub_k] = object[sub_k] or sub_v
+						--log(string.format("Set default value of %s for %s at %s%s", sub_v, sub_k, path, i and "." .. i or ""))
+					end
+				end
+			end
+		elseif object[k] == nil then
+			object[k] = object[k] or v
+			--log(string.format("Set default value of %s for %s at %s%s", v, k, path, i and "." .. i or ""))
+		end
+	end
+end
+
+
+-- Sets all the default property values for the given object as defined in the config.lua file
+---@param object_name string The name of the object to set defaults for
+---@param object table The object itself
+---@param root_type string The root type of the object to set defaults for
+---@param root_object table The root object itself
+---@param path string The path to the object to set defaults for
+---@param property_list table The list of default property values to check and apply
+---@return nil -- No return
+local function set_defaults(object_name, object, root_type, root_object, path, property_list)
+	-- Get the property defaults and restrictions for the current object
+	local object_properties = property_list[object_name] and property_list[object_name].properties or property_list[object_name] or nil
+	local object_restrictions = property_list[object_name] and property_list[object_name].restrictions or nil
+
+	-- If this is an array, set the default values for each entry in the array
+	if is_array(object) then
+		for i, entry in ipairs(object) do
+			-- Apply the default values
+			apply_defaults(object_name, entry, root_type, root_object, path, object_properties, object_restrictions, i)
+		end
+	else
+		-- Apply the default values
+		apply_defaults(object_name, object, root_type, root_object, path, object_properties, object_restrictions)
+	end
+end
+
+
 -- Adjust the property values of the given object by the given multiplier
 ---@param object_name string The name of the object being adjusted
 ---@param object table The object to adjust the properties of
@@ -350,6 +412,9 @@ end
 local function adjust_prototypes_recursive(object_name, object, root_type, root_object, path)
 	--local skip_all = false
 
+	-- Set defaults
+	set_defaults(object_name, object, root_type, root_object, path, prototype_values_default_recursive)
+
 	-- Adjust speeds
 	apply_adjustments(object_name, object, root_type, root_object, path, prototype_speeds_recursive, gtts_time_scale)
 
@@ -386,13 +451,6 @@ local function adjust_prototypes_recursive(object_name, object, root_type, root_
 							adjust_animation(sub_object)
 						end
 					else
-						-- Handle hatches
-						if sub_name == "hatch_definitions" then
-							for _,hatch in ipairs(sub_object) do
-								hatch["busy_timeout_ticks"] = hatch["busy_timeout_ticks"] or 120
-								hatch["hatch_opening_ticks"] = hatch["hatch_opening_ticks"] or 80
-							end
-						end
 						-- Entities with crafting speeds have their own animation
 						-- speed control tied to the crafting speed. Since the
 						-- crafting speed has already been adjusted, changing the
@@ -471,6 +529,9 @@ local function adjust_speeds()
 				if not animation then
 					-- Initialize the path string
 					local path = string.format("%s.%s", type_name, prototype_name)
+
+					-- Set defaults
+					set_defaults(type_name, prototype, type_name, prototype, path, prototype_values_default)
 
 					-- Adjust speeds
 					apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_speeds, gtts_time_scale)
