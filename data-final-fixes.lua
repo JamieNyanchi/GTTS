@@ -257,18 +257,6 @@ local function adjust_energy(value, multiplier)
 end
 
 
-local function adjust_animation(animation)
-	-- There are a few animations, notably the player movement speed animation that there is more
-	-- than one reference to. If we have already adjusted that animation, we should not adjust it
-	-- again. So the property "animation_speed" is set true.
-	if not table_references[animation] or not table_references[animation]["animation_speed"] then
-		table_references[animation] = table_references[animation] or {}
-		table_references[animation]["animation_speed"] = true
-		animation["animation_speed"] = (animation["animation_speed"] or 1) * gtts_time_scale
-	end
-end
-
-
 -- Sets the given list of default property values to the given object, if the restrictions for those defaults are satisfied
 ---@param object_name string The name of the object to set defaults for
 ---@param object table The object itself
@@ -318,15 +306,40 @@ local function set_defaults(object_name, object, root_type, root_object, path, p
 	local object_properties = property_list[object_name] and property_list[object_name].properties or property_list[object_name] or nil
 	local object_restrictions = property_list[object_name] and property_list[object_name].restrictions or nil
 
+	-- Get the special defaults and restrictions for the current object
+	local special_properties = property_list["*"] and property_list["*"].properties or property_list["*"] or nil
+	local special_restrictions = property_list["*"] and property_list["*"].restrictions or nil
+
 	-- If this is an array, set the default values for each entry in the array
 	if is_array(object) then
+		local num_repeat_count = 0
+		local check_animation = type(object[1]) == "table" and not object[1]["layers"] and not object[1]["animation_speed"]
 		for i, entry in ipairs(object) do
 			-- Apply the default values
 			apply_defaults(object_name, entry, root_type, root_object, path, object_properties, object_restrictions, i)
+			apply_defaults(object_name, entry, root_type, root_object, path, special_properties, special_restrictions, i)
+
+			-- Also check if a default animation speed value should be applied
+			if check_animation and type(entry) == "table" then
+				-- If any of these properties are present, this is an animation
+				if entry["frame_count"] or entry["stripes"] or entry["slice"] or entry["run_mode"] or entry["max_advance"] or entry["frame_sequence"] or entry["animation_speed"] then
+					object[1]["animation_speed"] = object[1]["animation_speed"] or 1
+					check_animation = false
+
+				-- If "repeat_count" is present at least twice, then this is an animation
+				elseif entry["repeat_count"] and (entry["filename"] or entry["filenames"]) then
+					num_repeat_count = num_repeat_count + 1
+					if num_repeat_count >= 2 then
+						object[1]["animation_speed"] = object[1]["animation_speed"] or 1
+						check_animation = false
+					end
+				end
+			end
 		end
 	else
 		-- Apply the default values
 		apply_defaults(object_name, object, root_type, root_object, path, object_properties, object_restrictions)
+		apply_defaults(object_name, object, root_type, root_object, path, special_properties, special_restrictions)
 	end
 end
 
@@ -410,8 +423,6 @@ end
 ---@param path string The path to the object being adjusted
 ---@return nil -- No return
 local function adjust_prototypes_recursive(object_name, object, root_type, root_object, path)
-	--local skip_all = false
-
 	-- Set defaults
 	set_defaults(object_name, object, root_type, root_object, path, prototype_values_default_recursive)
 
@@ -424,71 +435,61 @@ local function adjust_prototypes_recursive(object_name, object, root_type, root_
 	-- Adjust durations
 	apply_adjustments(object_name, object, root_type, root_object, path, prototype_durations_recursive, 1 / gtts_time_scale)
 
-	-- Now recursively work through each sub object of this object, and
-	-- adjust animations as necessary, or just pass it on to this function.
-	--
-	-- Many animations are grouped into layers and the like, the majority
-	-- of the purpose of this recursion is to traverse all layers to reach
-	-- all of the pieces of the animations.
-	--if not skip_all then
-		for sub_name, sub_object in pairs(object) do
-			-- Don't recursively adjust these objects or anything below them.
-			local skip = false
-			for _, exclusion in ipairs(exclude_recursive) do
-				if sub_name == exclusion then
-					skip = true
-					break
-				end
-			end
+	-- If the skip_all flag is set or if this object had an animation speed, then do not continue the recursion
+	-- For animation speeds, there is nothing else to adjust from here, so we stop the recursion for performance
+	local skip_all = false
+	if skip_all or object["animation_speed"] then
+		return
+	end
 
-			-- If we don't skip.
-			if not skip then
-				if type(sub_object) == "table" then
-					-- Here is how animations are identified, as an animation
-					-- requires more than one frame.
-					if sub_object["frame_count"] then
-						if sub_object["frame_count"] > 1 then
-							adjust_animation(sub_object)
-						end
-					else
-						-- Entities with crafting speeds have their own animation
-						-- speed control tied to the crafting speed. Since the
-						-- crafting speed has already been adjusted, changing the
-						-- animation speed will make the animation too fast or too slow.
-						local working_animation = false
-						if object["crafting_speed"] or object["animation_speed_coefficient"] then
-							if sub_name == "working_visualisations"
-									or sub_name == "working_visualisations_disabled"
-									or sub_name == "animation"
-									or sub_name == "idle_animation"
-									or sub_name == "graphics_set"
-									or sub_name == "graphics_set_flipped" then
-								working_animation = true
-							end
-						end
-
-						--[[
-						if object["type"] == "mining-drill" then
-							if sub_name == "animations"
-									or sub_name == "shadow_animations"
-									or sub_name == "input_fluid_patch_shadow_animations"
-									or sub_name == "graphics_set"
-									or sub_name == "wet_mining_graphics_set" then
-								working_animation = true
-							end
-						end
-						--]]
-
-						-- If this is not a working animation, pass it back to this function for further processing.
-						if not working_animation then
-							local new_path = string.format("%s.%s", path, sub_name)
-							adjust_prototypes_recursive(sub_name, sub_object, root_type, root_object, new_path)
-						end
-					end
-				end
+	-- Now recursively work through each sub object of this object
+	for sub_name, sub_object in pairs(object) do
+		-- Don't recursively adjust these objects or anything below them.
+		local skip = false
+		for _, exclusion in ipairs(exclude_recursive) do
+			if sub_name == exclusion then
+				skip = true
+				break
 			end
 		end
-	--end
+
+		-- If we don't skip.
+		if not skip and type(sub_object) == "table" then
+			-- Entities with crafting speeds have their own animation
+			-- speed control tied to the crafting speed. Since the
+			-- crafting speed has already been adjusted, changing the
+			-- animation speed will make the animation too fast or too slow.
+			local working_animation = false
+			if object["crafting_speed"] or object["animation_speed_coefficient"] then
+				if sub_name == "working_visualisations"
+						or sub_name == "working_visualisations_disabled"
+						or sub_name == "animation"
+						or sub_name == "idle_animation"
+						or sub_name == "graphics_set"
+						or sub_name == "graphics_set_flipped" then
+					working_animation = true
+				end
+			end
+
+			--[[
+			if object["type"] == "mining-drill" then
+				if sub_name == "animations"
+						or sub_name == "shadow_animations"
+						or sub_name == "input_fluid_patch_shadow_animations"
+						or sub_name == "graphics_set"
+						or sub_name == "wet_mining_graphics_set" then
+					working_animation = true
+				end
+			end
+			--]]
+
+			-- If this is not a working animation, pass it back to this function for further processing.
+			if not working_animation then
+				local new_path = string.format("%s.%s", path, sub_name)
+				adjust_prototypes_recursive(sub_name, sub_object, root_type, root_object, new_path)
+			end
+		end
+	end
 end
 
 
@@ -518,33 +519,23 @@ local function adjust_speeds()
 		if not skip then
 			-- Otherwise grab all the prototypes of that type.
 			for prototype_name, prototype in pairs(prototype_type) do
-				--Check if this is an animation at prototype level.
-				local animation = false
-				if prototype["frame_count"] then
-					if prototype["frame_count"] > 1 then
-						animation = true
-						adjust_animation(prototype)
-					end
-				end
-				if not animation then
-					-- Initialize the path string
-					local path = string.format("%s.%s", type_name, prototype_name)
+				-- Initialize the path string
+				local path = string.format("%s.%s", type_name, prototype_name)
 
-					-- Set defaults
-					set_defaults(type_name, prototype, type_name, prototype, path, prototype_values_default)
+				-- Set defaults
+				set_defaults(type_name, prototype, type_name, prototype, path, prototype_values_default)
 
-					-- Adjust speeds
-					apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_speeds, gtts_time_scale)
+				-- Adjust speeds
+				apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_speeds, gtts_time_scale)
 
-					-- Adjust power rates
-					apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_power_rates, gtts_time_scale)
+				-- Adjust power rates
+				apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_power_rates, gtts_time_scale)
 
-					-- Adjust durations
-					apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_durations, 1 / gtts_time_scale)
+				-- Adjust durations
+				apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_durations, 1 / gtts_time_scale)
 
-					-- Do recursive adjustments
-					adjust_prototypes_recursive(type_name, prototype, type_name, prototype, path)
-				end
+				-- Do recursive adjustments
+				adjust_prototypes_recursive(type_name, prototype, type_name, prototype, path)
 			end
 		end
 	end
