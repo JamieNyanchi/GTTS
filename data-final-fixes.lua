@@ -4,6 +4,16 @@ require("config")
 -- Table of references to tables previously adjusted
 local table_references = {} ---@type table
 
+-- Table of references to functions created with load()
+local load_functions = {} ---@type table
+
+-- Global variables for use by functions created with load()
+g_object = nil		---@type table
+g_object_root = nil	---@type table
+g_object_name = nil	---@type string
+g_root_type = nil	---@type string
+local g_path = nil	---@type string
+
 
 -- Utility function to determine if a table is an array
 ---@param table table The table to check
@@ -50,10 +60,11 @@ end
 
 
 -- Utility function to determine if a string has a specific ending
+-- This is a global function so it can be used by functions created with load()
 ---@param str string The string to check the ending of
 ---@param ending string	The string to check as the ending
 ---@return boolean -- Whether the string has the ending or not
-local function string_ends_with(str, ending)
+function string_ends_with(str, ending)
 	-- Verify the parameters are strings
 	if type(str) ~= "string" or type(ending) ~= "string" then
 		return false
@@ -64,25 +75,163 @@ local function string_ends_with(str, ending)
 end
 
 
----Clamps the given prototype property to the range set in config.lua
----@param type_name string the type name of the prototype being modified
----@param property_name string the name of the property being clamped
----@param base_value number the current value of the property
----@param min_value number? the minimum value to clamp to (inclusive)
----@param max_value number? the maximum value to clamp to (inclusive)
----@return number clamped the property value clamped to `min <= x <= max`
-local function clamp_property(type_name, property_name, base_value, min_value, max_value)
-	local full_path = type_name .. "." .. property_name
-	if not min_value then
-		min_value = prototype_values_clamp_low[full_path] or prototype_values_clamp_low[property_name] or math.huge * -1
+-- Utility function to determine if the path string contains a specific entry
+-- This is a global function so it can be used by functions created with load()
+---@param entry string|table The string or table of strings to check existence of in the path
+---@return boolean -- Whether the path contains the entry or not
+function path_contains(entry)
+	-- Place a period on both sides of the string to prevent entries accidentally matching another part of the path
+	g_path = util.string_starts_with(g_path, ".") and g_path or string.format(".%s.", g_path)
+
+	-- If this is a table, then check if every entry in it is in the path
+	if type(entry) == "table" then
+		for _, v in ipairs(entry) do
+			-- Verify the entry is a string
+			if type(v) ~= "string" then
+				return false
+			end
+
+			-- Determine if the entry is not in the path, and return false if that is the case
+			local str = string.format(".%s.", v)
+			if not string.find(g_path, str, 1, true) then
+				return false
+			end
+		end
+
+		-- At this point, all entries have successfully matched, so return true
+		return true
 	end
-	if not max_value then
-		max_value = prototype_values_clamp_high[full_path] or prototype_values_clamp_high[property_name] or math.huge
+
+	-- Verify the entry is a string
+	if type(entry) ~= "string" then
+		return false
 	end
+
+	-- Determine if the entry is in the path and return the result
+	local str = string.format(".%s.", entry)
+	return string.find(g_path, str, 1, true) ~= nil
+end
+
+
+-- Checks if all the restrictions for adjusting a prototype are satisfied
+---@param object_name string The name of the object
+---@param object table The object itself
+---@param root_type string The root type of the object
+---@param root_object table The root object itself
+---@param path string The path to the object
+---@param restrictions string? The list of restrictions to check
+---@return boolean -- Whether all the restrictions are satisfied or not
+local function check_restrictions(object_name, object, root_type, root_object, path, restrictions)
+	-- If there are no restrictions, then the restrictions are automatically satisfied, so return true
+	if not restrictions then
+		return true
+	end
+
+	-- Set the global variables to the values in the parameters
+	-- This is done because the function created by the load function can only use global variables
+	g_object = object
+	g_object_name = object_name
+	g_object_root = root_object
+	g_root_type = root_type
+	g_path = path
+
+	-- Get the cached version of the function if it exists
+	local func = load_functions[restrictions]
+
+	-- If there was no cached version, then make a new function for the given restriction
+	if not func then
+		-- Format the restriction string for use by load()
+		-- For ease of writing the restrictions, simple names are used for writing and are then converted here to the specific global names for use by load()
+		local str = restrictions
+		str = string.gsub(str, "root_type", "g_root_type")
+		str = string.gsub(str, "root_object", "object_root") -- The "g_" prefix will be added by the next line
+		str = string.gsub(str, "object", "g_object") -- Done at the end to prevent causing issues earlier
+		str = string.format("return (%s)", str) -- A return statement is necessary to get the result of the function
+
+		-- Create the new function with formatted string
+		func = load(str)
+
+		-- Cache the new function for later use to save performance time
+		load_functions[restrictions] = func
+	end
+
+	-- Executing the function gives the result of whether the restrictions were met, so return it immediately
+	return func and func() or false
+end
+
+
+-- Gets the first limit value from a clamp data table that meets the requirements, or nil if none
+---@param object_name string The name of the object that the property belongs to
+---@param object table The object that the property belongs to
+---@param root_type string The root type name of the object that the property belongs to
+---@param root_object table The root object that this object belongs to
+---@param path string The path to the current property
+---@param clamp_data table The table of limits and restrictions
+---@return number? -- The first valid clamp value from the clamp data
+local function get_clamp_value(object_name, object, root_type, root_object, path, clamp_data)
+	-- Iterate over all the limits in the table
+	for _, entry in ipairs(clamp_data) do
+		-- Check if this object meets the restrictions for this limit to be used
+		if check_restrictions(object_name, object, root_type, root_object, path, entry.restrictions) then
+			-- If the limit is just a standard value, return that value
+			local limit = entry.limit
+			if type(limit) ~= "table" then
+				return limit
+			end
+
+			-- If the limit is a table, then this is an expression limit
+			-- Substitute the variables with the appropriate values
+			local variables = {}
+			for k, v in pairs(limit[2]) do
+				variables[k] = object[v]
+			end
+
+			-- Return the evaluated expression
+			return helpers.evaluate_expression(limit[1], variables)
+		end
+	end
+end
+
+
+-- Clamps the given prototype property to the range set in config.lua
+---@param object_name string The name of the object that the property belongs to
+---@param object table The object that the property belongs to
+---@param root_type string The root type name of the object that the property belongs to
+---@param root_object table The root object that this object belongs to
+---@param full_path string The full path to the current property
+---@param property string The name of the property being clamped
+---@param base_value number The current value of the property
+---@param min_value number? The minimum value to clamp to (inclusive)
+---@param max_value number? The maximum value to clamp to (inclusive)
+---@return number -- The property value clamped to `min <= x <= max`
+local function clamp_property(object_name, object, root_type, root_object, full_path, property, base_value, min_value, max_value)
+	-- Get the paths that will be checked
+	local root_path = string.format("%s.%s", root_type, property)
+	local object_path = string.format("%s.%s", object_name, property)
+
+	-- Get the minimum and maximum values for this property
+	min_value = min_value or prototype_values_clamp_low[object_path] or prototype_values_clamp_low[root_path] or prototype_values_clamp_low[property] or math.huge * -1
+	max_value = max_value or prototype_values_clamp_high[object_path] or prototype_values_clamp_high[root_path] or prototype_values_clamp_high[property] or math.huge
+
+	-- If the min value is a table, then get the actual min value from the table
+	if type(min_value) == "table" then
+		min_value = get_clamp_value(object_name, object, root_type, root_object, full_path, min_value) or math.huge * -1
+	end
+
+	-- If the max value is a table, then get the actual max value from the table
+	if type(max_value) == "table" then
+		max_value = get_clamp_value(object_name, object, root_type, root_object, full_path, max_value) or math.huge
+	end
+
+	-- Clamp the property value if necessary
 	local ret = math.min(math.max(base_value, min_value), max_value)
+
+	-- If the value was clamped, make a note in the log file
 	if ret ~= base_value then
-		log(string.format("CLAMPED: %s.%s,  %s -> %s", type_name, property_name, base_value, ret))
+		log(string.format("CLAMPED: %s.%s,  %s -> %s", full_path, property, base_value, ret))
 	end
+
+	-- Return the clamped value
 	return ret
 end
 
@@ -121,17 +270,34 @@ end
 
 
 -- Adjust the property values of the given object by the given multiplier
+---@param object_name string The name of the object being adjusted
 ---@param object table The object to adjust the properties of
----@param type_name string The type of the object being adjusted
+---@param root_type string The root type of the object being adjusted
+---@param root_object table The root object itself
 ---@param path string The path to the object being adjusted
 ---@param property_list table The list of properties to adjust
 ---@param multiplier number The multiplier to adjust the properties by
 ---@return nil -- No return
-local function apply_adjustments(object, type_name, path, property_list, multiplier)
+local function apply_adjustments(object_name, object, root_type, root_object, path, property_list, multiplier)
 	-- Iterate over all the properties in the given property list
 	for _, property in ipairs(property_list) do
+		-- Set or reset these variables for use later by this function
+		local restrictions = nil
+		local final_multiplier = multiplier
+		local is_math_expression = false
+		local offset = 0
+
+		-- If the current entry in the property list is a table, then get the actual property from it along with any additional data it may have
+		if type(property) == "table" then
+			restrictions = property.restrictions
+			final_multiplier = multiplier ^ (property.multiplier_exponent or 1)
+			is_math_expression = property.is_math_expression or false
+			offset = property.offset or 0
+			property = property.property
+		end
+
 		-- Check that the object has the property, that it hasn't already been adjusted, and that it meets all the restrictions (if any)
-		if object[property] and (not table_references[object] or not table_references[object][property]) then
+		if object[property] and (not table_references[object] or not table_references[object][property]) and check_restrictions(object_name, object, root_type, root_object, path, restrictions) then
 			-- As a double check to avoid potential multiple references, tag each property that is changed so we don't change it again later
 			table_references[object] = table_references[object] or {}
 			table_references[object][property] = true
@@ -144,24 +310,26 @@ local function apply_adjustments(object, type_name, path, property_list, multipl
 
 				-- Iterate over all the entries in the table
 				for k, v in pairs(object[property]) do
-					object[property][k] = clamp_property(type_name, property, object[property][k] * multiplier)
+					object[property][k] = clamp_property(object_name, object, root_type, root_object, path, property, ((object[property][k] - offset) * final_multiplier) + offset)
 					--log(string.format("Adjusted property \"%s.%s\" from %s to %s at path: %s", property, k, v, object[property][k], path))
 				end
 
 			-- If the property is a number, then simply multiply it by the multiplier
 			elseif type(object[property]) == "number" then
 				local initial = object[property]
-				object[property] = clamp_property(type_name, property, object[property] * multiplier)
+				object[property] = clamp_property(object_name, object, root_type, root_object, path, property, ((object[property] - offset) * final_multiplier) + offset)
+				--log(string.format("Adjusted property \"%s\" from %s to %s at path: %s", property, initial, object[property], path))
 
-				if property == "acceleration" or property == "particle_vertical_acceleration" or property == "acceleration_rate" or property == "movement_acceleration" then
-					object[property] = object[property] * gtts_time_scale
-				end
+			-- If the property is a string and is set as a math expression, then just concatenate the multiplier to the end of the string
+			elseif type(object[property]) == "string" and is_math_expression then
+				local initial = object[property]
+				object[property] = string.format(("%s * %s"), object[property], final_multiplier)
 				--log(string.format("Adjusted property \"%s\" from %s to %s at path: %s", property, initial, object[property], path))
 
 			-- If the property is a string and the property list is one of the power rate lists, then use the adjust energy function to modify the property value
 			elseif type(object[property]) == "string" and (string_ends_with(object[property], "W") or string_ends_with(object[property], "J")) then
 				local initial = object[property]
-				object[property] = adjust_energy(object[property], multiplier)
+				object[property] = adjust_energy(object[property], final_multiplier)
 				--log(string.format("Adjusted property \"%s\" from %s to %s at path: %s", property, initial, object[property], path))
 			end
 		end
@@ -173,21 +341,23 @@ end
 -- and it's best to go through them recursively. I use this sparingly
 -- as it's better to put a specific change to the value when something
 -- is not working right then to try to put an exception here.
+---@param object_name string The name of the object being adjusted
 ---@param object table The object to adjust the properties of
----@param type_name string The type of the object being adjusted
+---@param root_type string The root type of the object being adjusted
+---@param root_object table The root object itself
 ---@param path string The path to the object being adjusted
 ---@return nil -- No return
-local function adjust_prototypes_recursive(object, type_name, path)
+local function adjust_prototypes_recursive(object_name, object, root_type, root_object, path)
 	--local skip_all = false
 
 	-- Adjust speeds
-	apply_adjustments(object, type_name, path, prototype_speeds_recursive, gtts_time_scale)
+	apply_adjustments(object_name, object, root_type, root_object, path, prototype_speeds_recursive, gtts_time_scale)
 
 	-- Adjust power rates
-	apply_adjustments(object, type_name, path, prototype_power_rates_recursive, gtts_time_scale)
+	apply_adjustments(object_name, object, root_type, root_object, path, prototype_power_rates_recursive, gtts_time_scale)
 
 	-- Adjust durations
-	apply_adjustments(object, type_name, path, prototype_durations_recursive, 1 / gtts_time_scale)
+	apply_adjustments(object_name, object, root_type, root_object, path, prototype_durations_recursive, 1 / gtts_time_scale)
 
 	-- Now recursively work through each sub object of this object, and
 	-- adjust animations as necessary, or just pass it on to this function.
@@ -216,14 +386,6 @@ local function adjust_prototypes_recursive(object, type_name, path)
 							adjust_animation(sub_object)
 						end
 					else
-						--Handle smoke frequency.
-						if sub_name == "smoke" then
-							for k,_ in ipairs(sub_object) do
-								if sub_object[k]["frequency"] then
-									sub_object[k]["frequency"] = sub_object[k]["frequency"] * gtts_time_scale
-								end
-							end
-						end
 						-- Handle hatches
 						if sub_name == "hatch_definitions" then
 							for _,hatch in ipairs(sub_object) do
@@ -231,53 +393,6 @@ local function adjust_prototypes_recursive(object, type_name, path)
 								hatch["hatch_opening_ticks"] = hatch["hatch_opening_ticks"] or 80
 							end
 						end
-
-						-- Handle asteroid probabilities
-						if sub_name == "asteroid_spawn_definitions" then
-							for _,def in ipairs(sub_object) do
-								if def["probability"] then
-									def["probability"] = def["probability"] * gtts_time_scale
-								end
-							end
-						end
-						if sub_name == "perceived_performance" then
-							if sub_object["performance_to_activity_rate"] then
-								sub_object["performance_to_activity_rate"] = sub_object["performance_to_activity_rate"] / gtts_time_scale
-							end
-						end
-						if sub_name == "activity_to_speed_modifiers" then
-							if sub_object["multiplier"] then
-								sub_object["multiplier"] = sub_object["multiplier"] / gtts_time_scale
-							end
-						end
-						if sub_name == "activity_to_volume_modifiers" then
-							if sub_object["multiplier"] then
-								sub_object["multiplier"] = sub_object["multiplier"] / gtts_time_scale
-							end
-						end
-						if sub_name == "damage_per_tick" then
-							if sub_object["amount"] then
-								--local initial = sub_object["amount"]
-								sub_object["amount"] = sub_object["amount"] * gtts_time_scale
-								--log("Object: "..sub_name.." damage adjusted from: "..sub_object["amount"])
-							end
-						end
-						if sub_name == "on_damage_tick_effect" then
-							if sub_object["action_delivery"] then
-								if sub_object["action_delivery"]["target_effects"] then
-									for k,v in ipairs(sub_object["action_delivery"]["target_effects"]) do
-										if v["damage"] then
-											if v["damage"]["amount"] then
-												--local initial = v["damage"]["amount"]
-												v["damage"]["amount"] = v["damage"]["amount"] * gtts_time_scale
-												--log("Object: "..sub_name.." damage adjusted from: "..v["damage"]["amount"])
-											end
-										end
-									end
-								end
-							end
-						end
-
 						-- Entities with crafting speeds have their own animation
 						-- speed control tied to the crafting speed. Since the
 						-- crafting speed has already been adjusted, changing the
@@ -309,7 +424,7 @@ local function adjust_prototypes_recursive(object, type_name, path)
 						-- If this is not a working animation, pass it back to this function for further processing.
 						if not working_animation then
 							local new_path = string.format("%s.%s", path, sub_name)
-							adjust_prototypes_recursive(sub_object, type_name, new_path)
+							adjust_prototypes_recursive(sub_name, sub_object, root_type, root_object, new_path)
 						end
 					end
 				end
@@ -347,13 +462,6 @@ local function adjust_speeds()
 			for prototype_name, prototype in pairs(prototype_type) do
 				--Check if this is an animation at prototype level.
 				local animation = false
-
-				-- Handle weight for non item prototypes only.
-				if type_name ~= "item" then
-					if prototype["weight"] then
-						prototype["weight"] = prototype["weight"] / gtts_time_scale
-					end
-				end
 				if prototype["frame_count"] then
 					if prototype["frame_count"] > 1 then
 						animation = true
@@ -365,39 +473,16 @@ local function adjust_speeds()
 					local path = string.format("%s.%s", type_name, prototype_name)
 
 					-- Adjust speeds
-					apply_adjustments(prototype, type_name, path, prototype_speeds, gtts_time_scale)
+					apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_speeds, gtts_time_scale)
 
 					-- Adjust power rates
-					apply_adjustments(prototype, type_name, path, prototype_power_rates, gtts_time_scale)
+					apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_power_rates, gtts_time_scale)
 
 					-- Adjust durations
-					apply_adjustments(prototype, type_name, path, prototype_durations, 1 / gtts_time_scale)
+					apply_adjustments(type_name, prototype, type_name, prototype, path, prototype_durations, 1 / gtts_time_scale)
 
 					-- Do recursive adjustments
-					adjust_prototypes_recursive(prototype, type_name, path)
-
-					-- Construction robots cannot move if their x and y velocities both individually drop below
-					-- 2^-8. Thus the safe minimum speed for robots is 2^-8 * sqrt(2) or about 0.0056
-					if type_name == "construction-robot" or type_name == "logistic-robot" then
-						if prototype["speed"] and prototype["speed_multiplier_when_out_of_energy"] then
-							local depleted_speed = prototype["speed"] * prototype["speed_multiplier_when_out_of_energy"]
-							-- a speed of 0 means they will crash when out of energy, and we don't want to override that
-							if depleted_speed > 0 then
-								prototype["speed_multiplier_when_out_of_energy"] = clamp_property(type_name, "speed_multiplier_when_out_of_energy", prototype["speed_multiplier_when_out_of_energy"], 0.0056 / prototype["speed"])
-							end
-						end
-					end
-
-					if type_name == "repair-tool" and prototype["durability"] then
-						prototype["durability"] = prototype["durability"] / gtts_time_scale
-					end
-
-					-- Fix the doubled impact of vehicle weight changes of platform acceleration.
-					if type_name == "utility-constants" then
-						if prototype["space_platform_acceleration_expression"] then
-							prototype["space_platform_acceleration_expression"] = prototype["space_platform_acceleration_expression"].." * "..gtts_time_scale
-						end
-					end
+					adjust_prototypes_recursive(type_name, prototype, type_name, prototype, path)
 				end
 			end
 		end
