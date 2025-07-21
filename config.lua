@@ -365,6 +365,12 @@ prototype_speeds_recursive = {
 		restrictions = 'path_contains({ "on_damage_tick_effect", "action_delivery", "target_effects", "damage" }) or path_contains("damage_per_tick")',
 	},
 	{
+		property = "animation_speed",
+		-- The procession graphic catalogue is for the rocket launch and cargo pod animations.
+		-- The animations are already adjusted by adjusting the other related properties, so do not adjust again it here.
+		restrictions = 'not path_contains("procession_graphic_catalogue")',
+	},
+	{
 		property = "frequency",
 		restrictions = 'path_contains("smoke")',
 	},
@@ -470,6 +476,12 @@ local uint64 = { min = 0, max = 2^64-1 } -- 0 <= x <= 18,446,744,073,709,551,615
 -- List of default values for optional properties related to speed and duration.
 -- All of these values are sourced from the API documentation.
 prototype_values_default = {
+	["animation"] = {
+		properties = {
+			["animation_speed"] = 1,
+		},
+		restrictions = 'object["frame_count"] or object["stripes"] or object["slice"] or object["run_mode"] or object["max_advance"] or object["frame_sequence"]',
+	},
 	["artillery-flare"] = {
 		["early_death_ticks"] = 180,
 		["initial_frame_speed"] = 1,
@@ -692,6 +704,18 @@ prototype_values_default_recursive = {
 	["space_dust_foreground"] = {
 		["animation_speed"] = 1,
 	},
+
+	----------------------
+	-- Special Defaults --
+	----------------------
+	-- Some properties that should have default values have a lot of objects they can belong to, such as animations.
+	-- For these, we can use this special wildcard object. This is computationally more expensive, but is fine if used for only a few properties.
+	["*"] = {
+		properties = {
+			["animation_speed"] = 1,
+		},
+		restrictions = 'object["frame_count"] or object["stripes"] or object["slice"] or object["run_mode"] or object["max_advance"] or object["frame_sequence"]',
+	},
 }
 
 -- Max clamp values for properties.
@@ -712,6 +736,14 @@ prototype_values_clamp_high = {
 	-------------------------
 	-- Special High Clamps --
 	-------------------------
+	animation_speed = {
+		{
+			-- Some smoke prototypes require that frame_count / animation_speed be greater than 1 if the smoke isn't cyclical.
+			-- In those cases, set the animation speed high clamp to just under the frame_count.
+			limit = { "X - 0.000001", { ["X"] = "frame_count" } },
+			restrictions = 'object["frame_count"] and root_object["cyclic"] == false',
+		},
+	},
 	duration = {
 		{
 			-- For camera effects and working visualization states, the duration has a lower clamp value.
