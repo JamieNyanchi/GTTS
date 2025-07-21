@@ -116,19 +116,38 @@ prototype_speeds = {
 	"production_health_effect",
 	"max_fluid_usage",
 
+	-------------------
+	-- Accelerations --
+	-------------------
+	-- Several acceleration values are doubly affected by time, so set the multiplier exponent to 2 to adjust them twice.
+	{
+		property = "acceleration",
+		multiplier_exponent = 2,
+	},
+	{
+		property = "acceleration_rate",
+		multiplier_exponent = 2,
+	},
+	{
+		property = "movement_acceleration",
+		multiplier_exponent = 2,
+	},
+	{
+		property = "particle_vertical_acceleration",
+		multiplier_exponent = 2,
+	},
 
+	--------------------
+	-- Special Speeds --
+	--------------------
+	{
+		-- This property is added with a multiplier exponent of 0 so that it is only clamped if it needs to be.
+		property = "speed_multiplier_when_out_of_energy",
+		multiplier_exponent = 0,
+	},
 }
 
 prototype_durations = {
-	-- Weight has a big impact on how vehicles move. At low frame rates, vehicles will be considered to be moving at
-	-- substantial speeds relative to their normal speeds. The energy needed to accelerate their normal weight to
-	-- those speeds would be very large as the energy goes up 4x for each 2x increase in speed. Dropping the weight
-	-- keeps the ratio inline, and allows the simulation of vehicles to be fairly similar given the change in sampling rate.
-	--
-	-- 2.0 added weight property to all items to determine how many can fit on a rocket, so this has to be handled
-	-- differently for different prototype types.
-	--"weight",
-
 	-- Another timing method for animations.
 	"animation_ticks_per_frame",
 	"effect_animation_period",
@@ -203,6 +222,31 @@ prototype_durations = {
 
 	"duration_in_ticks",
 
+	-----------------------
+	-- Special Durations --
+	-----------------------
+	{
+		property = "durability",
+		restrictions = 'root_type == "repair-tool"',
+	},
+	{
+		-- Fix the doubled impact of vehicle weight changes of platform acceleration.
+		property = "space_platform_acceleration_expression",
+		is_math_expression = true,
+	},
+	{
+		-- Weight has a big impact on how vehicles move. At low frame rates, vehicles will be considered to be moving at
+		-- substantial speeds relative to their normal speeds. The energy needed to accelerate their normal weight to
+		-- those speeds would be very large as the energy goes up 4x for each 2x increase in speed. Dropping the weight
+		-- keeps the ratio inline, and allows the simulation of vehicles to be fairly similar given the change in sampling rate.
+		-- 2.0 added weight property to all items to determine how many can fit on a rocket, so this has to be handled
+		-- differently for different prototype types.
+		-- Handle weight for non item prototypes only.
+		property = "weight",
+		restrictions = 'root_type == "space-platform-hub" or root_type == "tile" or root_type == "artillery-wagon" or root_type == "cargo-wagon"\
+				or root_type == "infinity-cargo-wagon" or root_type == "fluid-wagon" or root_type == "locomotive" or root_type == "spider-vehicle" or root_type == "car"',
+	},
+
 	--------------------------------------
 	-- Removed due to incompatibilities --
 	--------------------------------------
@@ -256,21 +300,6 @@ prototype_power_rates_recursive = {
 --
 -- Entries with a * indicate tables of values, such as those for emissions.
 prototype_speeds_recursive = {
-	-- Acceleration is also handled specially in the recursive function since the
-	-- function tags the values to prevent them from being changed twice, this
-	-- entry is doubled as a reminder.
-
-	"acceleration", -- First adjust for the speed the acceleration grants.
-	"acceleration", -- Then adjust for the rate at which the speed is granted.
-
-	"acceleration_rate",
-	"acceleration_rate",
-
-	"movement_acceleration",
-	"movement_acceleration",
-
-	"particle_vertical_acceleration",
-
 	"healing_per_tick", -- Player out of combat healing rate.
 	"damage_per_tick",
 
@@ -287,7 +316,6 @@ prototype_speeds_recursive = {
 	"initial_vertical_speed",
 	"initial_frame_speed",
 	"initial_movement_speed",
-	"movement_acceleration",
 	"frame_speed",
 	"emissions_per_minute",
 	"emissions_per_second",
@@ -328,6 +356,22 @@ prototype_speeds_recursive = {
 
 	--"frequency",
 	--"gravity",
+
+	--------------------
+	-- Special Speeds --
+	--------------------
+	{
+		property = "amount",
+		restrictions = 'path_contains({ "on_damage_tick_effect", "action_delivery", "target_effects", "damage" }) or path_contains("damage_per_tick")',
+	},
+	{
+		property = "frequency",
+		restrictions = 'path_contains("smoke")',
+	},
+	{
+		property = "probability",
+		restrictions = 'path_contains("asteroid_spawn_definitions")',
+	},
 }
 
 prototype_durations_recursive = {
@@ -399,6 +443,18 @@ prototype_durations_recursive = {
 
 	"jump_delay_ticks", -- Tesla Turret chain property.
 	"warmup",
+
+	-----------------------
+	-- Special Durations --
+	-----------------------
+	{
+		property = "multiplier",
+		restrictions = 'path_contains("activity_to_speed_modifiers") or path_contains("activity_to_volume_modifiers")',
+	},
+	{
+		property = "performance_to_activity_rate",
+		restrictions = 'path_contains("perceived_performance")',
+	},
 }
 
 -- This could be a table, but this makes it more readable below, and the locals are immediately discarded anyway.
@@ -412,30 +468,54 @@ local uint32 = { min = 0, max = 2^32-1 } -- 0 <= x <= 4,294,967,295
 local uint64 = { min = 0, max = 2^64-1 } -- 0 <= x <= 18,446,744,073,709,551,615
 
 -- Max clamp values for properties.
--- Keys can be just the property name, or parent_type.property name. The latter have precedence.
+-- Keys can be just the property_name, root_type.property_name, or object.property_name. The latter have precedence.
 prototype_values_clamp_high = {
 	time_to_live = uint32.max,
 	["fire.fade_out_duration"] = uint32.max, -- Shared name with different cap, so defined by type.
 	["explosion.fade_out_duration"] = uint8.max,
 	damage_interval = uint32.max,
 	time_before_removed = uint32.max,
-	duration = uint32.max,
-	["artillery-projectile.duration"] = uint8.max,
 	["artillery-projectile.ease_out_duration"] = uint8.max,
-	["projectile.duration"] = uint8.max,
 	["projectile.ease_out_duration"] = uint8.max,
 	duration_in_ticks = uint32.max,
 	life_time = uint16.max,
 	spoil_ticks = uint32.max,
-	["attack_parameters.ammo_type.action.action_delivery.duration"] = uint8.max,
 	flicker_interval = uint8.max,
+
+	-------------------------
+	-- Special High Clamps --
+	-------------------------
+	duration = {
+		{
+			-- For camera effects and working visualization states, the duration has a lower clamp value.
+			limit = uint8.max,
+			restrictions = 'object["type"] == "camera-effect" or path_contains("states")',
+		},
+		{
+			-- Standard clamp for all other duration properties.
+			limit = uint32.max,
+		},
+	},
 }
 
 -- Min clamp values for properties.
--- Keys can be just the property name, or parent_type.property name. The latter have precedence.
+-- Keys can be just the property_name, root_type.property_name, or object.property_name. The latter have precedence.
 prototype_values_clamp_low = {
 	duration = 1,
 	duration_in_ticks = 1,
+
+	------------------------
+	-- Special Low Clamps --
+	------------------------
+	speed_multiplier_when_out_of_energy = {
+		{
+			-- Construction robots cannot move if their x and y velocities both individually drop below 2^-8.
+			-- Thus the safe minimum speed for robots is 2^-8 * sqrt(2) or about 0.0056.
+			limit = { "0.0056 / X", { ["X"] = "speed" } },
+			-- A speed multiplier of 0 means they will crash when out of energy, and we don't want to override that.
+			restrictions = 'object["speed_multiplier_when_out_of_energy"] ~= 0',
+		},
+	},
 }
 
 -- Controller speed value needs a different clamping value than other prototypes, so handle them separately.
