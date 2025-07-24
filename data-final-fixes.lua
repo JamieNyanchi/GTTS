@@ -1,6 +1,9 @@
 -- Global configuration table
 require("config")
 
+-- Add compatibility prototypes
+require("prototypes.compatibility")
+
 -- Table of references to tables previously adjusted
 local table_references = {} ---@type table
 

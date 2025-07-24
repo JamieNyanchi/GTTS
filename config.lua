@@ -1,11 +1,25 @@
+-- Mod and API names.
+gtts_mod_name = "GTTS"
+gtts_API_name = "GTTS"
+
 -- Time scale values.
+gtts_tick_rate = 60
 gtts_time_scale = 1.0
 gtts_time_scale_inverse = 1.0
 
+-- Safe mode setting.
+gtts_safe_mode = false
+
 -- Get the time scale values based on the target frame rate setting.
 if settings.startup["gtts-Target-FrameRate"] and settings.startup["gtts-Target-FrameRate"].value >= 6 and settings.startup["gtts-Target-FrameRate"].value <= 480 then
-	gtts_time_scale = 60.0 / settings.startup["gtts-Target-FrameRate"].value
+	gtts_tick_rate = settings.startup["gtts-Target-FrameRate"].value
+	gtts_time_scale = 60.0 / gtts_tick_rate
 	gtts_time_scale_inverse = 1.0 / gtts_time_scale
+end
+
+-- Get whether safe mode is active or not.
+if settings.startup["gtts-z-No-Runtime-Adjustments"] then
+	gtts_safe_mode = settings.startup["gtts-z-No-Runtime-Adjustments"].value
 end
 
 -- This is a list of all the controller types.
