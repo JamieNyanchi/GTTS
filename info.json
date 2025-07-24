@@ -6,6 +6,22 @@
   "author": "Zanthra",
   "contact": "zanthra+factoriogtts@gmail.com",
   "homepage": "https://forums.factorio.com/viewtopic.php?f=144&t=50281",
-  "dependencies": ["base"],
-  "description": "Change the base UPS/FPS of Factorio without changing the game pace. Allows almost-normal gameplay at 120hz."
+  "description": "Change the base UPS/FPS of Factorio without changing the game pace. Allows almost-normal gameplay at 120hz.",
+  "dependencies": [
+    "base",
+    "(?) elevated-rails",
+    "(?) quality",
+    "(?) space-age",
+    "(?) aai-industry",
+    "(?) alien-biomes",
+    "(?) CharacterModHelper",
+    "(?) combat-mechanics-overhaul",
+    "(?) jetpack",
+    "(?) Krastorio2",
+    "(?) Krastorio2-spaced-out",
+    "(?) pypostprocessing",
+    "(?) robot_attrition",
+    "(?) skins-factored",
+    "(?) space-exploration"
+  ]
 }
