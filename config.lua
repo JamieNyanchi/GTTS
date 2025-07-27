@@ -10,16 +10,29 @@ gtts_time_scale_inverse = 1.0
 -- Safe mode setting.
 gtts_safe_mode = false
 
+-- Nerf particle values.
+nerf_particles = false
+gtts_time_scale_base = 1.0
+gtts_time_scale_extreme = 1.0
+
 -- Get the time scale values based on the target frame rate setting.
 if settings.startup["gtts-Target-FrameRate"] and settings.startup["gtts-Target-FrameRate"].value >= 6 and settings.startup["gtts-Target-FrameRate"].value <= 480 then
 	gtts_tick_rate = settings.startup["gtts-Target-FrameRate"].value
 	gtts_time_scale = 60.0 / gtts_tick_rate
 	gtts_time_scale_inverse = 1.0 / gtts_time_scale
+
+	gtts_time_scale_base = gtts_time_scale
 end
 
 -- Get whether safe mode is active or not.
 if settings.startup["gtts-z-No-Runtime-Adjustments"] then
 	gtts_safe_mode = settings.startup["gtts-z-No-Runtime-Adjustments"].value
+end
+
+-- Get the time scale values for particles based on the nerf particles setting.
+if settings.startup["gtts-Nerf-Particles"] and settings.startup["gtts-Nerf-Particles"].value then
+	nerf_particles = settings.startup["gtts-Nerf-Particles"].value
+	gtts_time_scale_extreme = 2^64
 end
 
 -- This is a list of all the controller types.

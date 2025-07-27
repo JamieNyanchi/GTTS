@@ -12,6 +12,12 @@ data:extend({
     default_value = true,
   },
   {
+    type = "bool-setting",
+    name = "gtts-Nerf-Particles",
+    setting_type = "startup",
+    default_value = false,
+  },
+  {
     type = "int-setting",
     name = "gtts-Target-FrameRate",
     setting_type = "startup",

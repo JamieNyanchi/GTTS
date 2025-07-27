@@ -231,7 +231,7 @@ local function clamp_property(object_name, object, root_type, root_object, full_
 
 	-- If the value was clamped, make a note in the log file
 	if ret ~= base_value then
-		log(string.format("CLAMPED: %s.%s,  %s -> %s", full_path, property, base_value, ret))
+		--log(string.format("CLAMPED: %s.%s,  %s -> %s", full_path, property, base_value, ret))
 	end
 
 	-- Return the clamped value
@@ -504,6 +504,13 @@ local function adjust_speeds()
 	-- Get all prototype types from data.raw
 	for type_name, prototype_type in pairs(data.raw) do
 		local skip = false
+
+		-- Nerf particle effects if setting is set
+		if nerf_particles and type_name == "optimized-particle" then
+			gtts_time_scale = gtts_time_scale_extreme
+		else
+			gtts_time_scale = gtts_time_scale_base
+		end
 
 		--Skip any prototype types listed in exclusions
 		for _, exclusion in ipairs(exclude_prototype_types) do
