@@ -63,8 +63,8 @@ Date: 2022.05.16
 Version: 1.6.4
 Date: 2022.05.15
   Changes:
-    - Added clamp high values for duration and life_time to help compatability with other mods.
-    - Added special adjustment code for the god-controller and other controllers to allow their movement_speed to be ajusted within some bounds.
+    - Added clamp high values for duration and life_time to help compatibility with other mods.
+    - Added special adjustment code for the god-controller and other controllers to allow their movement_speed to be adjusted within some bounds.
 ---------------------------------------------------------------------------------------------------
 Version: 1.6.3
 Date: 2021.02.16
@@ -91,7 +91,7 @@ Date: 2020.11.10
 Version: 1.5.1
 Date: 2020.04.15
   Changes:
-    - Added pollution_absorption_per_second for 0.18, along with other miscelaneous adjustments.
+    - Added pollution_absorption_per_second for 0.18, along with other miscellaneous adjustments.
     - Added a fix for adjusting animation speeds for animations that are stored in the data at the prototype level, particularly for compatibility with DiscoScience.
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.0
@@ -103,7 +103,7 @@ Version: 1.4.2
 Date: 2020.03.04
   Changes:
     - Changed the method of modifying and saving game saved properties such as day length.
-    - Also fixed spelling of Absorption which will fix the ammount of pollution added or removed per tick.
+    - Also fixed spelling of Absorption which will fix the amount of pollution added or removed per tick.
 ---------------------------------------------------------------------------------------------------
 Version: 1.4.1
 Date: 2019.02.28
@@ -113,17 +113,17 @@ Date: 2019.02.28
 Version: 1.4.0
 Date: 2019..02.26
   Changes:
-    - Minor Changes to make compatable with Factorio 0.17. No new changes added. Minor debugging.
+    - Minor Changes to make compatible with Factorio 0.17. No new changes added. Minor debugging.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.5
 Date: 2018.07.10
   Changes:
     - From a suggestion I saw here on the Forums:
       https://forums.factorio.com/viewtopic.php?f=5&t=60842
-      Thanks to TurePikachu for the idea, it seems that item positions belts have 1/256 tile increments, so there are only specific UPS values that will maintain belt speed accuracy.
+      Thanks to TruePikachu for the idea, it seems that item positions belts have 1/256 tile increments, so there are only specific UPS values that will maintain belt speed accuracy.
       The following list shows some of the valid UPS values between 480 and 12, with any value of 480/x maintaining belt accuracy.
       480, 240, 160, 120, 96, 80, 60, 48, 40, 32, 30, 24, 20, 19.2, 16, 15 and 12
-      The mod settings now also have tooltips to provide a bit more infomration on the settings.
+      The mod settings now also have tooltips to provide a bit more information on the settings.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.4
 Date: 2018.06.10
@@ -144,8 +144,8 @@ Date: 2018.01.31
 Version: 1.3.1
 Date: 2018.01.31
   Changes:
-    - Fixed the check for the setting used to disasble the welcome message so that it actually disables the welcome message.
-    - Added an option to close the notification permanenetly for a save game on the dialog itself so players can supress the welcome message if it appears too frequently.
+    - Fixed the check for the setting used to disable the welcome message so that it actually disables the welcome message.
+    - Added an option to close the notification permanently for a save game on the dialog itself so players can suppress the welcome message if it appears too frequently.
     - Also nil the UI event handler to clean up resources.
 ---------------------------------------------------------------------------------------------------
 Version: 1.3.0
@@ -173,7 +173,7 @@ Date: 2017.07.25
 Version: 1.1.1
 Date: 2017.07.24
   Changes:
-    - Made adjustments to the "heat_buffer" "max_trasfer" property of nuclear reactors and heat pipes.
+    - Made adjustments to the "heat_buffer" "max_transfer" property of nuclear reactors and heat pipes.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 2017.07.17
@@ -202,7 +202,7 @@ Date: 2017.06.28
   Changes:
     - Added a load of missing modifications to time ratios, in particular changed accumulator Input and Output rates, and fixed vehicle power consumption.
     - Moved the modifications from data-updates to data-final-fixes as some mods change crafting speeds in their data-updates, such as Angel's modifications to Bob's MK 2 Chemical Plants.
-    - Added a wild guess fluid speed modification. Since the math beind fluid speeds is pretty obscured, and I don't have a good way of testing it, use at your own risk.
+    - Added a wild guess fluid speed modification. Since the math behind fluid speeds is pretty obscured, and I don't have a good way of testing it, use at your own risk.
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.1
 Date: 2017.06.27
@@ -213,4 +213,3 @@ Version: 0.1.0
 Date: 2017.06.25
   Changes:
     - Created mod base and modified a collection of speeds.
-

@@ -1,5 +1,4 @@
-data:extend(
-{
+data:extend({
   {
     type = "bool-setting",
     name = "gtts-z-No-Runtime-Adjustments",
@@ -18,7 +17,7 @@ data:extend(
     setting_type = "startup",
     default_value = 60,
     minimum_value = 6,
-    maximum_value = 480
+    maximum_value = 480,
   },
   {
     type = "bool-setting",
@@ -38,28 +37,24 @@ data:extend(
     setting_type = "runtime-global",
     default_value = false,
   },
-  
   {
     type = "bool-setting",
     name = "gtts-Adjust-HandCraftingSpeed",
     setting_type = "runtime-global",
     default_value = false,
   },
-  
   {
     type = "bool-setting",
     name = "gtts-Adjust-Pollution",
     setting_type = "runtime-global",
     default_value = false,
   },
-  
   {
     type = "bool-setting",
     name = "gtts-Adjust-Evolution",
     setting_type = "runtime-global",
     default_value = false,
   },
-  
   {
     type = "bool-setting",
     name = "gtts-Adjust-Expansion",
@@ -72,5 +67,4 @@ data:extend(
     setting_type = "runtime-global",
     default_value = false,
   },
-}
-)
+})

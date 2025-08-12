@@ -1,4 +1,5 @@
-require "config"
+-- Global configuration table
+require("config")
 
 ---Clamps the given prototype property to the range set in config.lua
 ---@param type_name string the type name of the prototype being modified
@@ -41,10 +42,10 @@ local function adjust_animation(animation)
 	end
 end
 
---Some characterstics can be many layers deep in the prototypes tree,
---and it's best to go through them recursively. I use this sparingly
---as it's better to put a specific change to the value when something
---is not working right then to try to put an exception here.
+-- Some characteristics can be many layers deep in the prototypes tree,
+-- and it's best to go through them recursively. I use this sparingly
+-- as it's better to put a specific change to the value when something
+-- is not working right then to try to put an exception here.
 
 local function adjust_prototypes_recursive(object, type_name)
 	--local skipall = false
@@ -54,7 +55,7 @@ local function adjust_prototypes_recursive(object, type_name)
 		-- multiple references, tag each property that is changed so we
 		-- don't change it again.
 		if object[speed] and not object[speed.."+gtts"] then
-			
+
 			--skipall = true
 			object[speed.."+gtts"] = true
 
@@ -104,7 +105,7 @@ local function adjust_prototypes_recursive(object, type_name)
 	end
 
 	-- Now recursively work through each sub object of this object, and
-	-- adjust animations as nescessary, or just pass it on to this function.
+	-- adjust animations as necessary, or just pass it on to this function.
 	--
 	-- Many animations are grouped into layers and the like, the majority
 	-- of the purpose of this recursion is to traverse all layers to reach
@@ -171,7 +172,6 @@ local function adjust_prototypes_recursive(object, type_name)
 							if sub_object["amount"] then
 								--local initial = sub_object["amount"]
 								sub_object["amount"] = sub_object["amount"] * gtts_time_scale
-								
 								--log("Object: "..sub_name.." damage adjusted from: "..sub_object["amount"])
 							end
 						end
@@ -199,19 +199,19 @@ local function adjust_prototypes_recursive(object, type_name)
 						local working_animation = false
 						if object["crafting_speed"] or object["animation-speed-coefficient"] then
 							if sub_name == "working_visualisations"
-								or sub_name == "working_visualisations_disabled"
-								or sub_name == "animation"
-								or sub_name == "idle_animation"
-								or sub_name == "graphics_set" then
+									or sub_name == "working_visualisations_disabled"
+									or sub_name == "animation"
+									or sub_name == "idle_animation"
+									or sub_name == "graphics_set" then
 								working_animation = true
 							end
 						end
 
 						if object["type"] == "mining_drill" then
 							if sub_name == "animations"
-								or sub_name == "shadow_animations"
-								or sub_name == "input_fluid_patch_shadow_animations"
-								or sub_name == "graphics_set" then
+									or sub_name == "shadow_animations"
+									or sub_name == "input_fluid_patch_shadow_animations"
+									or sub_name == "graphics_set" then
 								working_animation = true
 							end
 						end
@@ -254,7 +254,7 @@ local function adjust_speeds()
 				skip = true
 			end
 		end
-		
+
 		--Skip any prototype types listed in exclusions
 		for _, exclusion in ipairs(exclude_prototype_types) do
 			if type_name == exclusion then
@@ -293,24 +293,24 @@ local function adjust_speeds()
 							end
 						end
 					end
-					
+
 					-- Adjust power rates.
 					for _,rate in ipairs(prototype_power_rates) do
 						if prototype[rate] then
 							prototype[rate] = adjust_energy(prototype[rate])
 						end
 					end
-					
+
 					-- Adjust Durations.
 					for _,duration in ipairs(prototype_durations) do
 						if prototype[duration] then
 							prototype[duration] = clamp_property(type_name, duration, prototype[duration] / gtts_time_scale)
 						end
 					end
-					
+
 					-- Do recursive adjustments.
 					adjust_prototypes_recursive(prototype, type_name)
-					
+
 					-- Construction robots cannot move if their x and y velocities both individually drop below
 					-- 2^-8. Thus the safe minimum speed for robots is 2^-8 * sqrt(2) or about 0.0056
 					if type_name == "construction-robot" or type_name == "logistic-robot" then
@@ -428,4 +428,5 @@ local function adjust_speeds()
 end
 
 
+-- Start adjusting all the speed and duration properties
 adjust_speeds()
