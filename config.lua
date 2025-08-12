@@ -1,14 +1,14 @@
-
-
+-- Time scale values.
 gtts_time_scale = 1.0
 gtts_time_scale_inverse = 1.0
 
-
+-- Get the time scale values based on the target frame rate setting.
 if settings.startup["gtts-Target-FrameRate"] and settings.startup["gtts-Target-FrameRate"].value >= 6 and settings.startup["gtts-Target-FrameRate"].value <= 480 then
 	gtts_time_scale = 60.0 / settings.startup["gtts-Target-FrameRate"].value
 	gtts_time_scale_inverse = 1.0 / gtts_time_scale
 end
 
+-- This is a list of all the controller types.
 controller_names = {
 	"god-controller",
 	"editor-controller",
@@ -22,6 +22,7 @@ exclude_prototype_types = {
 	"module",
 }
 
+-- This is a list of type exclusions that will not be adjusted in the recursive function.
 exclude_recursive = {
 
 }
@@ -53,11 +54,11 @@ prototype_speeds = {
 	"turret_rotation_speed", -- Turret rotation speed for cars, tanks, turrets and artillery.
 	"braking_force", -- Base braking force for trains.
 	"friction", -- Friction for cars and tanks as a percent of speed each tick.
-	"friction_force",
+	"friction_force", -- Alternate way to define friction.
 	"air-resistance", -- Percent of train speed lost each tick.
-	"torso_rotation_speed", -- Spidertron Torso rotation speed
+	"torso_rotation_speed", -- Spidertron Torso rotation speed.
 	"max_speed", -- A variable affecting the speed at which trains will stop accelerating, even if other factors would allow them to go faster.
-	"torso_bob_speed",
+	"torso_bob_speed", -- Spidertron Torso bob speed.
 
 	-------------------
 	-- Combat Speeds --
@@ -74,9 +75,9 @@ prototype_speeds = {
 
 
 	----------------------
-	-- Pollution speeds --
+	-- Pollution Speeds --
 	----------------------
-	"pollution_absorption_absolute", -- How much pollution an entity absorbes each tick no matter how much pollution is in that chunk.
+	"pollution_absorption_absolute", -- How much pollution an entity absorbs each tick no matter how much pollution is in that chunk.
 	"pollution_absorption_proportional", -- What percent of the pollution in a chuck the entity will absorb each tick.
 	"pollution_absorption_per_second",
 	-- Also see emissions-per-tick under buildings above.
@@ -91,9 +92,9 @@ prototype_speeds = {
 	"flying_acceleration", -- How fast the rocket accelerates.
 	"rising_speed", -- Speed the rocket rises from the silo when done building.
 
-	-------------------------
-	-- Miscelaneous speeds --
-	-------------------------
+	--------------------------
+	-- Miscellaneous Speeds --
+	--------------------------
 
 	"opening_speed",
 	"splash_speed",
@@ -108,26 +109,25 @@ prototype_speeds = {
 	----------------------
 	-- Space Age Speeds --
 	----------------------
-	
+
 	"arm_speed_base",
 	"arm_angular_speed_cap_base",
 	"production_health_effect",
 	"max_fluid_usage",
 
-	
-	}
+
+}
 
 prototype_durations = {
-	-- Weight has a big impact on how vehicles move. At low framerates, vehicles will be considered to be moving at
+	-- Weight has a big impact on how vehicles move. At low frame rates, vehicles will be considered to be moving at
 	-- substantial speeds relative to their normal speeds. The energy needed to accelerate their normal weight to
-	-- those speeds would be very large as the energy goes up 4x for each 2x increase in speed. Droping the weight
-	-- keeps the ratio inline, and allows the simulation of vehicles to be fairly similar given the change in sampling
-	-- rate.
+	-- those speeds would be very large as the energy goes up 4x for each 2x increase in speed. Dropping the weight
+	-- keeps the ratio inline, and allows the simulation of vehicles to be fairly similar given the change in sampling rate.
 	--
 	-- 2.0 added weight property to all items to determine how many can fit on a rocket, so this has to be handled
-	-- differntly for differnt prototypoe types.
+	-- differently for different prototype types.
 	--"weight",
-	
+
 	-- Another timing method for animations.
 	"animation_ticks_per_frame",
 	"effect_animation_period",
@@ -165,7 +165,7 @@ prototype_durations = {
 	-- Cooldowns
 
 	"lifetime_increase_cooldown",
-	"add_fuel_cooldown",	
+	"add_fuel_cooldown",
 	"charge_cooldown",
 	"discharge_cooldown",
 	"structure_animation_movement_cooldown",
@@ -173,7 +173,7 @@ prototype_durations = {
 	"action_cooldown",
 	"glow_fade_away_duration",
 	"turn_after_shooting_cooldown",
-	
+
 	--Delays
 
 	"spread_delay",
@@ -189,24 +189,24 @@ prototype_durations = {
 	"alert_after_time",
 	"ground_patch_fade_in_delay",
 	"ground_patch_fade_out_start",
-	
+
 
 	"particle_fade_out_duration",
-	
+
 	--"particle_spawn_interval",
 	--"particle_spawn_timeout",
-	
-	
+
+
 	"secondary_picture_fade_out_start",
 	"secondary_picture_fade_out_duration",
-	
+
 	"duration_in_ticks",
 
 	--------------------------------------
-	-- Removed due to incompatabilities --
+	-- Removed due to incompatibilities --
 	--------------------------------------
-	--"flow_length_in_ticks", --Causes crashes in some situations at low target frame rates
-	--"request_to_open_door_timeout", --Causes robots to get stuck at low target frame rates
+	--"flow_length_in_ticks", -- Causes crashes in some situations at low target frame rates.
+	--"request_to_open_door_timeout", -- Causes robots to get stuck at low target frame rates.
 }
 
 prototype_power_rates = {
@@ -222,7 +222,7 @@ prototype_power_rates = {
 	"movement_energy_consumption",
 	"passive_energy_usage",
 
-	
+
 	-- Production rather than consumption.
 	"production",
 	"energy_production",
@@ -230,13 +230,13 @@ prototype_power_rates = {
 	-- Moving energy around.
 	"charging_energy",
 	"max_transfer",
-	
-	-- Limits
+
+	-- Limits.
 	"power",
 	"max_power",
 	"braking_power",
 
-	-- Misc
+	-- Misc.
 	"heating_energy",
 	"crane_energy_usage",
 }
@@ -244,7 +244,7 @@ prototype_power_rates = {
 -- Mostly these properties are here because they relate to smoke which can be generated
 -- at a great many different layers in the prototype tree.
 --
--- Entries with a * indicate tables of values, such af those for emissions
+-- Entries with a * indicate tables of values, such as those for emissions.
 prototype_speeds_recursive = {
 	-- Acceleration is also handled specially in the recursive function since the
 	-- function tags the values to prevent them from being changed twice, this
@@ -252,7 +252,7 @@ prototype_speeds_recursive = {
 
 	"acceleration", -- First adjust for the speed the acceleration grants.
 	"acceleration", -- Then adjust for the rate at which the speed is granted.
-	
+
 	"acceleration_rate",
 	"acceleration_rate",
 
@@ -260,11 +260,11 @@ prototype_speeds_recursive = {
 	"movement_acceleration",
 
 	"particle_vertical_acceleration",
-	
+
 	"healing_per_tick", -- Player out of combat healing rate.
 	"damage_per_tick",
 
-	
+
 	"movement_speed", -- Player and other mob movement speeds.
 
 	"speed", -- Many prototypes have a speed for movement speed, operating speed, etc.
@@ -315,33 +315,33 @@ prototype_speeds_recursive = {
 	"extension_speed", -- Speed at which inserters extend or contract their hand to pick up items on the other side of belts, or to reach closer or further belts in mods that support it. Also Agricultural Towers.
 	"turn_rate",
 
-	
+
 	--"frequency",
 }
 
 prototype_durations_recursive = {
-	
+
 	"fade_in_ticks",
 	"fade_out_ticks",
-	
+
 	"particle_spawn_interval",
 	"particle_spawn_timeout",
 
 	"ease_in_duration",
 	"ease_out_duration",
 	"duration",
-	
+
 	"spawning_cooldown",
 
 	"platform_to_planet_duration_a",
 	"platform_to_planet_duration_b",
-    "platform_to_planet_hatch_open",
+	"platform_to_planet_hatch_open",
 
-    "impostor_start_tick",
-    "rocket_separation_tick",
-    "rocket_separation_end_tick",
-    "flight_duration",
-    "solo_duration",
+	"impostor_start_tick",
+	"rocket_separation_tick",
+	"rocket_separation_end_tick",
+	"flight_duration",
+	"solo_duration",
 
 	"special_action_tick",
 	"draw_switch_tick",
@@ -366,7 +366,7 @@ prototype_durations_recursive = {
 	"music_transition_pause_ticks",
 	"music_transition_fade_in_ticks",
 	"environment_sounds_transition_fade_in_ticks",
-	
+
 	"cooldown",
 	"delay",
 	"time_before_shading_off",
@@ -381,28 +381,29 @@ prototype_durations_recursive = {
 	"fissure_explosion_damage_delay_ticks",
 	"fissure_eruption_ticks",
 	"enraged_duration",
-	
+
 	--"distance_cooldown",
 
-	"fade_ticks", --Sound related
+	"fade_ticks", -- Sound related.
 
 	"jump_delay_ticks", -- Tesla Turret chain property.
 }
 
--- this could be a table, but this makes it more readable below, and the locals are immediately discarded anyway
-local int8   = {min = -2^7, max = 2^7-1} -- -128 <= x <= 127
-local int16  = {min = -2^15, max = 2^15-1} -- -32,768 <= x <= 32,767
-local int32  = {min = -2^31, max = 2^31-1} -- -2,147,483,648 <= x <= 2,147,483,647
-local int64  = {min = -2^63, max = 2^63-1} -- unused but defined in docs, -9,223,372,036,854,775,808 <= x <= 9,223,372,036,854,775,807
-local uint8  = {min = 0, max = 2^8-1} -- 0 <= x <= 255
-local uint16 = {min = 0, max = 2^16-1} -- 0 <= x <= 65,535
-local uint32 = {min = 0, max = 2^32-1} -- 0 <= x <= 4,294,967,295
-local uint64 = {min = 0, max = 2^64} --0 <= x <= 18,446,744,073,709,551,616
+-- This could be a table, but this makes it more readable below, and the locals are immediately discarded anyway.
+local int8   = { min = -2^7, max = 2^7-1 } -- -128 <= x <= 127
+local int16  = { min = -2^15, max = 2^15-1 } -- -32,768 <= x <= 32,767
+local int32  = { min = -2^31, max = 2^31-1 } -- -2,147,483,648 <= x <= 2,147,483,647
+local int64  = { min = -2^63, max = 2^63-1 } -- Unused, but defined in docs, -9,223,372,036,854,775,808 <= x <= 9,223,372,036,854,775,807
+local uint8  = { min = 0, max = 2^8-1 } -- 0 <= x <= 255
+local uint16 = { min = 0, max = 2^16-1 } -- 0 <= x <= 65,535
+local uint32 = { min = 0, max = 2^32-1 } -- 0 <= x <= 4,294,967,295
+local uint64 = { min = 0, max = 2^64 } -- 0 <= x <= 18,446,744,073,709,551,616
 
--- keys can be just the property name, or parent_type.property name. Latter has precedence.
+-- Max clamp values for properties.
+-- Keys can be just the property name, or parent_type.property name. The latter have precedence.
 prototype_values_clamp_high = {
 	time_to_live = uint32.max,
-	["fire.fade_out_duration"] = uint32.max, -- shared name with different cap, so defined by type
+	["fire.fade_out_duration"] = uint32.max, -- Shared name with different cap, so defined by type.
 	["explosion.fade_out_duration"] = uint8.max,
 	damage_interval = uint32.max,
 	time_before_removed = uint32.max,
@@ -418,7 +419,8 @@ prototype_values_clamp_high = {
 	flicker_interval = uint8.max,
 }
 
-
+-- Min clamp values for properties.
+-- Keys can be just the property name, or parent_type.property name. The latter have precedence.
 prototype_values_clamp_low = {
 	duration = 1,
 	duration_in_ticks = 1,
