@@ -33,6 +33,7 @@ prototype_speeds = {
 	--------------------
 	"belt_speed", -- Base belt speeds, also affects the belt animation speed.
 	"crafting_speed", -- Base crafting speed for factory buildings.
+	"max_fluid_flow", -- Max fluid flow through entity fluid inputs and outputs.
 	"mining_speed", -- Mining speed is shared with both mining drills and the player.
 	"pumping_speed", -- Liquid pump speeds.
 	"researching_speed", -- Lab Research speed.
@@ -50,14 +51,14 @@ prototype_speeds = {
 	--------------
 	-- Vehicles --
 	--------------
-	"air-resistance", -- Percent of train speed lost each tick.
 	"braking_force", -- Base braking force for trains.
 	"friction", -- Friction for cars and tanks as a percent of speed each tick.
 	"friction_force", -- Alternate way to define friction.
-	"max_speed", -- A variable affecting the speed at which trains will stop accelerating, even if other factors would allow them to go faster.
 	"torso_bob_speed", -- Spidertron Torso bob speed.
 	"torso_rotation_speed", -- Spidertron Torso rotation speed.
+	"train_pushed_by_player_max_acceleration",
 	"train_pushed_by_player_max_speed",
+	"train_waiting_at_signal_tick_multiplier_penalty",
 	"turret_rotation_speed", -- Turret rotation speed for cars, tanks, turrets and artillery.
 
 	-------------------
@@ -68,12 +69,33 @@ prototype_speeds = {
 	"cannon_parking_speed",
 	"damage_multiplier_decrease_per_tick",
 	"damage_per_tick",
+	"default_speed",
+	"default_speed_secondary",
+	"default_speed_when_killed",
 	"ending_attack_speed",
+	"ending_attack_speed_secondary",
+	"ending_attack_speed_when_killed",
 	"folded_speed",
+	"folded_speed_secondary",
+	"folded_speed_when_killed",
 	"folding_speed",
+	"folding_speed_secondary",
+	"folding_speed_when_killed",
+	"prepared_alternative_speed",
+	"prepared_alternative_speed_secondary",
+	"prepared_alternative_speed_when_killed",
 	"prepared_speed",
+	"prepared_speed_secondary",
+	"prepared_speed_when_killed",
 	"preparing_speed",
+	"preparing_speed_secondary",
+	"preparing_speed_when_killed",
+	"rotation_speed_secondary",
+	"rotation_speed_when_killed",
 	"splash_damage_per_tick",
+	"starting_attack_speed",
+	"starting_attack_speed_secondary",
+	"starting_attack_speed_when_killed",
 	"turn_speed",
 
 	----------------------
@@ -101,13 +123,16 @@ prototype_speeds = {
 	--------------------------
 	-- Miscellaneous Speeds --
 	--------------------------
+	"fluid_wagon_connector_speed",
 	"ground_patch_fade_in_speed",
 	"healing_per_tick", -- Player out of combat healing rate.
 	"initial_frame_speed",
+	"mining_particle_frame_speed",
 	"moving_sound_count_reduction_rate",
 	"opening_speed",
 	"particle_horizontal_speed",
 	"particle_horizontal_speed_deviation",
+	"scale_increment_per_tick",
 	"sound_minimum_speed",
 	"sound_scaling_ratio",
 	"splash_speed",
@@ -117,6 +142,8 @@ prototype_speeds = {
 	"tree_shadow_speed",
 	"walking_sound_count_reduction_rate",
 	"wave_speed",
+	--"horizontal_speed",
+	--"horizontal_speed_deviation",
 
 	----------------------
 	-- Space Age Speeds --
@@ -124,6 +151,7 @@ prototype_speeds = {
 	"arm_angular_speed_cap_base",
 	"arm_speed_base",
 	"asteroid_spawning_with_random_orientation_max_speed",
+	"capture_speed",
 	"ejected_item_speed",
 	"enraged_speed",
 	"gravity_pull",
@@ -131,6 +159,10 @@ prototype_speeds = {
 	"max_fluid_usage",
 	"patrolling_speed",
 	"production_health_effect",
+	"roar_probability",
+	"space_platform_asteroid_chunk_trajectory_updates_per_tick",
+	--"asteroid_position_offset_to_speed_coefficient",
+	--"space_platform_max_relative_speed_deviation_for_asteroid_chunks_update",
 
 	-------------------
 	-- Accelerations --
@@ -152,10 +184,34 @@ prototype_speeds = {
 		property = "particle_vertical_acceleration",
 		multiplier_exponent = 2,
 	},
+	{
+		property = "robot_vertical_acceleration",
+		multiplier_exponent = 2,
+	},
+	--[[
+	{
+		property = "vertical_acceleration",
+		multiplier_exponent = 2,
+	},
+	--]]
 
 	--------------------
 	-- Special Speeds --
 	--------------------
+	{
+		-- A variable affecting the speed at which trains will stop accelerating, even if other factors would allow them to go faster.
+		property = "max_speed",
+		restrictions = 'not (string_ends_with(object["filename"], ".ogg") or string_ends_with(object["filename"], ".wav"))',
+	},
+	{
+		property = "space_platform_relative_speed_factor",
+		multiplier_exponent = 1/2,
+		restrictions = 'gtts_time_scale > 1',
+	},
+	{
+		property = "space_platform_relative_speed_factor",
+		restrictions = 'gtts_time_scale < 1',
+	},
 	{
 		-- This property is added with a multiplier exponent of 0 so that it is only clamped if it needs to be.
 		property = "speed_multiplier_when_out_of_energy",
@@ -167,11 +223,16 @@ prototype_durations = {
 	-----------------------
 	-- Factory Durations --
 	-----------------------
+	"air_resistance", -- Percent of train speed lost each tick.
 	"asteroid_collector_navmesh_refresh_tick_interval",
 	"ejected_item_lifetime",
+	"growth_ticks",
+	"launch_wait_time",
 	"opened_duration",
 	"robot_opened_duration",
+	"rocket_rising_delay",
 	"space_platform_dump_cooldown",
+	"space_platform_manual_dump_cooldown",
 	"spoil_ticks",
 	"timeout_to_close",
 
@@ -185,15 +246,20 @@ prototype_durations = {
 	"enraged_duration",
 	"jump_delay_ticks", -- Tesla Turret chain property.
 	"min_pursue_time",
+	"reload_time",
 	"spawning_cooldown",
+	"ticks_per_scan",
 	"ticks_to_keep_aiming_direction",
 	"ticks_to_keep_gun",
 	"ticks_to_stay_in_combat",
 	"time_before_shading_off",
 	"time_to_capture",
 	"time_to_live",
+	"time_to_show_full_health_bar",
+	"trigger_interval",
 	"turn_after_shooting_cooldown",
 	"turret_return_timeout",
+	--"time_to_live_deviation",
 
 	----------------------------------------------------
 	-- Explosion / Fire / Particles / Smoke Durations --
@@ -210,7 +276,7 @@ prototype_durations = {
 	"initial_lifetime",
 	"life_time",
 	"lifetime_increase_cooldown",
-	"maximum_lifetimie",
+	"maximum_lifetime",
 	"particle_alpha_blend_duration",
 	"particle_fade_out_duration",
 	"particle_spawn_interval",
@@ -221,6 +287,9 @@ prototype_durations = {
 	"smoke_fade_out_duration",
 	"spread_delay",
 	"spread_duration",
+	"time_before_start",
+	--"spread_delay_deviation",
+	--"time_before_start_deviation",
 
 	-----------------------------
 	-- Miscellaneous Durations --
@@ -233,17 +302,22 @@ prototype_durations = {
 	"effect_duration",
 	"environment_sounds_transition_fade_in_ticks",
 	"fade_in_out_ticks",
+	"flying_text_ttl",
 	"ground_patch_fade_in_delay",
 	"ground_patch_fade_out_duration",
 	"ground_patch_fade_out_start",
+	"landing_squash_immunity",
 	"overlay_start_delay",
 	"repeat_delay",
+	"respawn_time",
 	"structure_animation_movement_cooldown",
+	"ticks_between_player_effects",
 	"time_before_removed",
 	"time_to_damage",
 	"train_inactivity_wait_condition_default",
 	"train_temporary_stop_wait_time",
 	"train_time_wait_condition_default",
+	"within",
 
 	-----------------------
 	-- Special Durations --
@@ -256,6 +330,7 @@ prototype_durations = {
 		-- Fix the doubled impact of vehicle weight changes of platform acceleration.
 		property = "space_platform_acceleration_expression",
 		is_math_expression = true,
+		restrictions = 'gtts_time_scale < 1',
 	},
 	{
 		-- Weight has a big impact on how vehicles move. At low frame rates, vehicles will be considered to be moving at
@@ -282,9 +357,12 @@ prototype_power_rates = {
 	-- Energy Consumption --
 	------------------------
 	"active_energy_usage",
+	"arm_energy_usage",
+	"arm_slow_energy_usage",
 	"consumption",
 	"crane_energy_usage",
 	"energy_consumption",
+	"energy_input",
 	"energy_per_tick",
 	"energy_usage",
 	"energy_usage_per_tick",
@@ -292,10 +370,12 @@ prototype_power_rates = {
 	"lamp_energy_usage",
 	"movement_energy_consumption",
 	"passive_energy_usage",
+	"power_input",
 
 	-----------------------
 	-- Energy Production --
 	-----------------------
+	"energy",
 	"energy_production",
 	"production",
 
@@ -309,12 +389,14 @@ prototype_power_rates = {
 	-------------------
 	"braking_power",
 	"max_power",
+	"max_power_output",
 	"power",
 
 	-------------------
 	-- Miscellaneous --
 	-------------------
 	"heating_energy",
+	"minimum_energy_produced",
 }
 
 prototype_power_rates_recursive = {
@@ -325,6 +407,21 @@ prototype_power_rates_recursive = {
 	"input_flow_limit",
 	"max_transfer",
 	"output_flow_limit",
+
+	--------------------
+	-- Special Energy --
+	--------------------
+	-- Scaling the specific heat property allows heat to move through heat pipes at a speed closer to correct.
+	{
+		property = "specific_heat",
+		multiplier_exponent = -1/4,
+		restrictions = 'root_type == "heat-pipe" and gtts_time_scale > 1',
+	},
+	{
+		property = "specific_heat",
+		multiplier_exponent = -1/64,
+		restrictions = 'root_type == "heat-pipe" and gtts_time_scale < 1',
+	},
 }
 
 -- Mostly these properties are here because they relate to smoke which can be generated
@@ -335,7 +432,19 @@ prototype_speeds_recursive = {
 	--------------------------------------
 	-- Animation / Visualization Speeds --
 	--------------------------------------
+	"attacking_animation_speed",
+	"back_to_walk_animation_speed",
+	"cooldown_animation_speed",
 	"frame_main_scanner_movement_speed",
+	"prepared_animation_speed",
+	"warmup_animation_speed",
+	--"acceleration_x",
+	--"acceleration_y",
+	--"acceleration_z",
+	--"max_advance",
+	--"speed_x",
+	--"speed_y",
+	--"speed_z",
 
 	--------------------
 	-- Factory Speeds --
@@ -355,18 +464,27 @@ prototype_speeds_recursive = {
 	--------------------------
 	"frame_speed",
 	"initial_vertical_speed",
+	"lead_target_for_projectile_speed",
 	"lightnings_per_chunk_per_tick",
 	"minimal_change_per_tick",
-	"speed", -- Many prototypes have a speed for movement speed, operating speed, etc.
 	"speed_from_center",
 	"starting_speed",
-	"starting_vertical_speed",
+	--"frame_speed_deviation",
 	--"gravity",
+	--"initial_vertical_speed_deviation",
+	--"smoke_cycles_per_tick",
+	--"speed_from_center_deviation",
 	--"starting_frame_speed",
+	--"vertical_speed",
+	--"vertical_speed_deviation",
 
 	--------------------
 	-- Special Speeds --
 	--------------------
+	{
+		property = "absolute",
+		restrictions = 'path_contains("absorptions_per_second")',
+	},
 	{
 		property = "amount",
 		restrictions = 'path_contains({ "on_damage_tick_effect", "action_delivery", "target_effects", "damage" }) or path_contains("damage_per_tick")',
@@ -378,12 +496,33 @@ prototype_speeds_recursive = {
 		restrictions = 'not path_contains("procession_graphic_catalogue")',
 	},
 	{
-		property = "frequency",
-		restrictions = 'path_contains("smoke")',
+		property = "effectivity",
+		restrictions = '(path_contains("min_performance") or path_contains("max_performance")) and gtts_time_scale > 1',
 	},
+	{
+		property = "frequency",
+		restrictions = 'path_contains("smoke") or path_contains("smoke_sources")',
+	},
+	--[[
 	{
 		property = "probability",
 		restrictions = 'path_contains("asteroid_spawn_definitions")',
+	},
+	--]]
+	{
+		property = "proportional",
+		restrictions = 'path_contains("absorptions_per_second")',
+	},
+	{
+		-- Many prototypes have a speed for movement speed, operating speed, etc.
+		property = "speed",
+		-- Asteroids seem to be too fast with the other space platform and asteroid related changes, so do not adjust the speed here.
+		-- Also do not adjust sound related speed values because it does not sound correct.
+		restrictions = 'not (path_contains("asteroid_spawn_definitions") or string_ends_with(object["filename"], ".ogg") or string_ends_with(object["filename"], ".wav"))',
+	},
+	{
+		property = "starting_vertical_speed",
+		multiplier_exponent = 1/2,
 	},
 }
 
@@ -403,9 +542,15 @@ prototype_durations_recursive = {
 	"rocket_separation_end_tick",
 	"rocket_separation_tick",
 	"solo_duration",
-	"special_action_tick",
+	{
+		property = "special_action_tick",
+		offset = -1, -- Set an offset value to prevent a slight flicker at high frame rates.
+		restrictions = 'root_type == "procession" and root_object["name"] == "planet-to-platform-a"',
+	},
+	"special_action_tick", -- Add again with no restrictions to get all other cases.
 	"start_time",
 	"timestamp",
+	--"frame",
 
 	-----------------------
 	-- Factory Durations --
@@ -423,25 +568,43 @@ prototype_durations_recursive = {
 	"fissure_eruption_ticks",
 	"fissure_explosion_damage_delay_ticks",
 	"fissure_explosion_particles_delay_ticks",
+	"initial_time_cooldown",
+	"lead_target_for_projectile_delay",
+	"movement_slow_down_cooldown",
 	"slow_seconds",
+	"time_cooldown",
+	"timeout",
 	"warmup",
 	--"fissure_explosion_delay_ticks",
 
 	---------------------
 	-- Sound Durations --
 	---------------------
+	"average_pause_seconds",
+	"delay_mean_seconds",
+	"delay_variance_seconds",
 	"fade_in_ticks",
 	"fade_out_ticks",
 	"fade_ticks", -- Sound related.
 	"music_transition_fade_in_ticks",
 	"music_transition_fade_out_ticks",
 	"music_transition_pause_ticks",
+	--"length_seconds",
+	--"start_pause",
+	--"end_pause",
+	--"pause_between_repetitions",
+	--"pause_between_samples",
 
 	-------------------------
 	-- Animation Durations --
 	-------------------------
 	"ease_in_duration",
 	"ease_out_duration",
+	"fade_in_progress_duration",
+	"fade_out_progress_duration",
+	"shift_animation_transition_duration",
+	"shift_animation_waypoint_stop_duration",
+	"spread_progress_duration",
 
 	-----------------------------
 	-- Miscellaneous Durations --
@@ -449,7 +612,17 @@ prototype_durations_recursive = {
 	"cooldown",
 	"delay",
 	"duration",
+	"explosion_visualization_duration",
+	"ticks",
 	--"distance_cooldown",
+	--"initial_distance_cooldown",
+	--"movement_slow_down_factor",
+	--"scorch_mark_fade_in_frames",
+	--"scorch_mark_fade_out_duration",
+	--"scorch_mark_lifetime",
+	--"starting_frame",
+	--"starting_frame_deviation",
+	--"starting_vertical_speed_deviation",
 
 	-----------------------
 	-- Special Durations --
@@ -461,6 +634,10 @@ prototype_durations_recursive = {
 	{
 		property = "performance_to_activity_rate",
 		restrictions = 'path_contains("perceived_performance")',
+	},
+	{
+		property = "vertical_speed_slowdown",
+		restrictions = 'gtts_time_scale > 1',
 	},
 }
 
@@ -712,27 +889,40 @@ prototype_values_default_recursive = {
 	-- Some properties that should have default values have a lot of objects they can belong to, such as animations.
 	-- For these, we can use this special wildcard object. This is computationally more expensive, but is fine if used for only a few properties.
 	["*"] = {
-		properties = {
-			["animation_speed"] = 1,
+		{
+			properties = {
+				["animation_speed"] = 1,
+			},
+			restrictions = 'object["frame_count"] or object["stripes"] or object["slice"] or object["run_mode"] or object["max_advance"] or object["frame_sequence"]',
 		},
-		restrictions = 'object["frame_count"] or object["stripes"] or object["slice"] or object["run_mode"] or object["max_advance"] or object["frame_sequence"]',
+		{
+			properties = {
+				["frame_speed"] = 1,
+			},
+			restrictions = 'object["type"] == "create-particle"',
+		},
 	},
 }
 
 -- Max clamp values for properties.
 -- Keys can be just the property_name, root_type.property_name, or object.property_name. The latter have precedence.
 prototype_values_clamp_high = {
-	["artillery-projectile.ease_out_duration"] = uint8.max,
 	["explosion.fade_out_duration"] = uint8.max,
 	["fire.fade_out_duration"] = uint32.max, -- Shared name with different cap, so defined by type.
-	["projectile.ease_out_duration"] = uint8.max,
 	damage_interval = uint32.max,
 	duration_in_ticks = uint32.max,
+	ease_out_duration = uint8.max,
 	flicker_interval = uint8.max,
+	launch_wait_time = uint8.max - 1, -- Need to subtract 1 because otherwise rockets will not launch at high frame rates.
 	life_time = uint16.max,
+	maximum_lifetime = uint32.max,
+	movement_slow_down_factor = 1,
+	particle_fade_out_duration = uint16.max,
 	spoil_ticks = uint32.max,
 	time_before_removed = uint32.max,
 	time_to_live = uint32.max,
+	vertical_acceleration = 0.01,
+	vertical_speed_slowdown = 1,
 
 	-------------------------
 	-- Special High Clamps --
@@ -761,12 +951,24 @@ prototype_values_clamp_high = {
 -- Min clamp values for properties.
 -- Keys can be just the property_name, root_type.property_name, or object.property_name. The latter have precedence.
 prototype_values_clamp_low = {
+	["particle-source.time_to_live"] = 3.48,
+	capture_speed = 0.001,
 	duration = 1,
 	duration_in_ticks = 1,
+	flying_text_ttl = 1,
+	vertical_acceleration = -0.01,
 
 	------------------------
 	-- Special Low Clamps --
 	------------------------
+	["optimized-particle.life_time"] = {
+		{
+			-- Optimized particle life time cannot be equal to 1, per the API documentation.
+			-- Since this is an unsigned integer, just set the minimum to 2 if the original life time isn't 0.
+			limit = 2,
+			restrictions = 'object["life_time"] ~= 0',
+		},
+	},
 	speed_multiplier_when_out_of_energy = {
 		{
 			-- Construction robots cannot move if their x and y velocities both individually drop below 2^-8.
