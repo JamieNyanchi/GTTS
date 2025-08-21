@@ -31,7 +31,7 @@ prototype_speeds = {
 	--------------------
 	-- Factory Speeds --
 	--------------------
-	"belt_speed", -- Base belt speeds, also affects the belt animation speed.
+	"belt_speed", -- (?) Base belt speeds, also affects the belt animation speed.
 	"crafting_speed", -- Base crafting speed for factory buildings.
 	"max_fluid_flow", -- Max fluid flow through entity fluid inputs and outputs.
 	"mining_speed", -- Mining speed is shared with both mining drills and the player.
@@ -64,7 +64,7 @@ prototype_speeds = {
 	-------------------
 	-- Combat Speeds --
 	-------------------
-	"attack_speed",
+	"attack_speed", -- (?)
 	"attacking_speed",
 	"cannon_parking_speed",
 	"damage_multiplier_decrease_per_tick",
@@ -92,7 +92,7 @@ prototype_speeds = {
 	"preparing_speed_when_killed",
 	"rotation_speed_secondary",
 	"rotation_speed_when_killed",
-	"splash_damage_per_tick",
+	"splash_damage_per_tick", -- (?)
 	"starting_attack_speed",
 	"starting_attack_speed_secondary",
 	"starting_attack_speed_when_killed",
@@ -103,12 +103,12 @@ prototype_speeds = {
 	----------------------
 	"absorptions_per_second",
 	"emissions_per_second",
-	"emissions_per_tick", -- Pollution Production.
-	"pollution_absorption_absolute", -- How much pollution an entity absorbs each tick no matter how much pollution is in that chunk.
-	"pollution_absorption_per_second",
-	"pollution_absorption_proportional", -- What percent of the pollution in a chuck the entity will absorb each tick.
+	"emissions_per_tick", -- (?) Pollution Production.
+	"pollution_absorption_absolute", -- (?) How much pollution an entity absorbs each tick no matter how much pollution is in that chunk.
+	"pollution_absorption_per_second", -- (?)
+	"pollution_absorption_proportional", -- (?) What percent of the pollution in a chuck the entity will absorb each tick.
 	--"absorptions_to_join_attack",
-	-- Also see emissions-per-tick under buildings above.
+	-- Also see (?) emissions-per-tick under buildings above.
 
 	-----------------
 	-- Rocket Silo --
@@ -133,8 +133,8 @@ prototype_speeds = {
 	"particle_horizontal_speed",
 	"particle_horizontal_speed_deviation",
 	"scale_increment_per_tick",
-	"sound_minimum_speed",
-	"sound_scaling_ratio",
+	"sound_minimum_speed", -- (?)
+	"sound_scaling_ratio", -- (?)
 	"splash_speed",
 	"stop_trigger_speed",
 	"tree_leaf_distortion_speed_far",
@@ -366,7 +366,7 @@ prototype_power_rates = {
 	"energy_per_tick",
 	"energy_usage",
 	"energy_usage_per_tick",
-	"idle_energy_usage",
+	"idle_energy_usage", -- (?)
 	"lamp_energy_usage",
 	"movement_energy_consumption",
 	"passive_energy_usage",
@@ -470,7 +470,7 @@ prototype_speeds_recursive = {
 	"speed_from_center",
 	"starting_speed",
 	--"frame_speed_deviation",
-	--"gravity",
+	--"gravity", -- (?)
 	--"initial_vertical_speed_deviation",
 	--"smoke_cycles_per_tick",
 	--"speed_from_center_deviation",
@@ -532,16 +532,16 @@ prototype_durations_recursive = {
 	-----------------------------------------
 	"draw_switch_tick",
 	"end_time",
-	"flight_duration",
-	"impostor_start_tick",
+	"flight_duration", -- (?)
+	"impostor_start_tick", -- (?)
 	"intermezzo_max_duration",
 	"intermezzo_min_duration",
-	"platform_to_planet_duration_a",
-	"platform_to_planet_duration_b",
-	"platform_to_planet_hatch_open",
-	"rocket_separation_end_tick",
-	"rocket_separation_tick",
-	"solo_duration",
+	"platform_to_planet_duration_a", -- (?)
+	"platform_to_planet_duration_b", -- (?)
+	"platform_to_planet_hatch_open", -- (?)
+	"rocket_separation_end_tick", -- (?)
+	"rocket_separation_tick", -- (?)
+	"solo_duration", -- (?)
 	{
 		property = "special_action_tick",
 		offset = -1, -- Set an offset value to prevent a slight flicker at high frame rates.
@@ -563,19 +563,19 @@ prototype_durations_recursive = {
 	----------------------
 	-- Combat Durations --
 	----------------------
-	"demolisher_cloud_duration",
-	"demolisher_expanding_cloud_interval",
-	"fissure_eruption_ticks",
-	"fissure_explosion_damage_delay_ticks",
-	"fissure_explosion_particles_delay_ticks",
+	"demolisher_cloud_duration", -- (?)
+	"demolisher_expanding_cloud_interval", -- (?)
+	"fissure_eruption_ticks", -- (?)
+	"fissure_explosion_damage_delay_ticks", -- (?)
+	"fissure_explosion_particles_delay_ticks", -- (?)
 	"initial_time_cooldown",
 	"lead_target_for_projectile_delay",
 	"movement_slow_down_cooldown",
-	"slow_seconds",
+	"slow_seconds", -- (?)
 	"time_cooldown",
 	"timeout",
 	"warmup",
-	--"fissure_explosion_delay_ticks",
+	--"fissure_explosion_delay_ticks", -- (?)
 
 	---------------------
 	-- Sound Durations --
@@ -586,9 +586,9 @@ prototype_durations_recursive = {
 	"fade_in_ticks",
 	"fade_out_ticks",
 	"fade_ticks", -- Sound related.
-	"music_transition_fade_in_ticks",
-	"music_transition_fade_out_ticks",
-	"music_transition_pause_ticks",
+	"music_transition_fade_in_ticks", -- (?)
+	"music_transition_fade_out_ticks", -- (?)
+	"music_transition_pause_ticks", -- (?)
 	--"length_seconds",
 	--"start_pause",
 	--"end_pause",
