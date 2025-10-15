@@ -344,7 +344,7 @@ prototype_durations = {
 	"train_inactivity_wait_condition_default",
 	"train_temporary_stop_wait_time",
 	"train_time_wait_condition_default",
-	"within",
+	--"within",
 
 	-----------------------
 	-- Special Durations --
@@ -386,7 +386,6 @@ prototype_power_rates = {
 	"active_energy_usage",
 	"arm_energy_usage",
 	"arm_slow_energy_usage",
-	"consumption",
 	"crane_energy_usage",
 	"energy_consumption",
 	"energy_input",
@@ -424,6 +423,17 @@ prototype_power_rates = {
 	-------------------
 	"heating_energy",
 	"minimum_energy_produced",
+
+	--------------------
+	-- Special Energy --
+	--------------------
+	{
+		-- Doubly scale the consumption of reactors to account for the higher specific_heat below.
+		property = "consumption",
+		multiplier_exponent = 2.2,
+		restrictions = 'gtts_time_scale > 1 and root_type == "reactor"',
+	},
+	"consumption", -- Add again with no restrictions to get all other cases.
 }
 
 prototype_power_rates_recursive = {
@@ -432,23 +442,19 @@ prototype_power_rates_recursive = {
 	---------------------
 	"drain",
 	"input_flow_limit",
-	"max_transfer",
 	"output_flow_limit",
+	"specific_heat",
 
 	--------------------
 	-- Special Energy --
 	--------------------
-	-- Scaling the specific heat property allows heat to move through heat pipes at a speed closer to correct.
 	{
-		property = "specific_heat",
-		multiplier_exponent = -1/4,
-		restrictions = 'root_type == "heat-pipe" and gtts_time_scale > 1',
+		-- Double scale the max_transfer of heat to account for the higher specific_heat and fuel consumption of reactors.
+		property = "max_transfer",
+		multiplier_exponent = 2,
+		restrictions = 'gtts_time_scale > 1',
 	},
-	{
-		property = "specific_heat",
-		multiplier_exponent = -1/64,
-		restrictions = 'root_type == "heat-pipe" and gtts_time_scale < 1',
-	},
+	"max_transfer", -- Add again with no restrictions to get all other cases.
 }
 
 -- Mostly these properties are here because they relate to smoke which can be generated
@@ -524,7 +530,12 @@ prototype_speeds_recursive = {
 	},
 	{
 		property = "effectivity",
-		restrictions = '(path_contains("min_performance") or path_contains("max_performance")) and gtts_time_scale > 1',
+		multiplier_exponent = 1.2,
+		restrictions = 'gtts_time_scale > 1 and root_type == "reactor"',
+	},
+	{
+		property = "effectivity",
+		restrictions = 'gtts_time_scale > 1 and (path_contains("min_performance") or path_contains("max_performance"))',
 	},
 	{
 		property = "frequency",
@@ -569,12 +580,6 @@ prototype_durations_recursive = {
 	"rocket_separation_end_tick", -- (?)
 	"rocket_separation_tick", -- (?)
 	"solo_duration", -- (?)
-	{
-		property = "special_action_tick",
-		offset = -1, -- Set an offset value to prevent a slight flicker at high frame rates.
-		restrictions = 'root_type == "procession" and root_object["name"] == "planet-to-platform-a"',
-	},
-	"special_action_tick", -- Add again with no restrictions to get all other cases.
 	"start_time",
 	"timestamp",
 	--"frame",
@@ -662,6 +667,12 @@ prototype_durations_recursive = {
 		property = "performance_to_activity_rate",
 		restrictions = 'path_contains("perceived_performance")',
 	},
+	{
+		property = "special_action_tick",
+		offset = -1, -- Set an offset value to prevent a slight flicker at high frame rates.
+		restrictions = 'root_type == "procession" and root_object["name"] == "planet-to-platform-a"',
+	},
+	"special_action_tick", -- Add again with no restrictions to get all other cases.
 	{
 		property = "vertical_speed_slowdown",
 		restrictions = 'gtts_time_scale > 1',
@@ -861,11 +872,23 @@ prototype_values_default_recursive = {
 		["turn_rate"] = 0.01,
 		["extension_speed"] = 0.05,
 	},
+	["burner"] = {
+		properties = {
+			["effectivity"] = 1,
+		},
+		restrictions = 'object["type"] == "burner"',
+	},
 	["capsule_action"] = {
 		properties = {
 			["timeout"] = 3600,
 		},
 		restrictions = 'object["type"] == "destroy-cliffs"',
+	},
+	["energy_source"] = {
+		properties = {
+			["effectivity"] = 1,
+		},
+		restrictions = 'object["type"] == "burner"',
 	},
 	["grappler"] = {
 		["vertical_turn_rate"] = 0.01,
