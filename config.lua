@@ -331,7 +331,7 @@ prototype_durations = {
 	"train_inactivity_wait_condition_default",
 	"train_temporary_stop_wait_time",
 	"train_time_wait_condition_default",
-	"within",
+	--"within",
 
 	-----------------------
 	-- Special Durations --

@@ -8,3 +8,6 @@ handler.add_libraries({
     require("scripts.compatibility"),
     require("scripts.commands"),
 })
+
+-- Support for Lua API global Variable Viewer (gvv) mod, if active
+if script.active_mods["gvv"] then require("__gvv__.gvv")() end
